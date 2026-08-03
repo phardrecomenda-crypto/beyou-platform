@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createServerSupabaseClient } from "../../lib/supabase/server";
 
 type Product = { id:string; slug:string; name:string; short_description:string; price_cents:number; stock_quantity:number; featured:boolean };
@@ -15,6 +16,6 @@ export default async function StorePage() {
     <section className="catalog" aria-labelledby="catalog-title"><div className="catalog-title"><div><small>LOJA BEYOU</small><h2 id="catalog-title">Nossa seleção</h2></div><span>{products.length} {products.length === 1 ? "produto" : "produtos"}</span></div>
       {error && <p className="catalog-message" role="alert">Não foi possível carregar os produtos agora.</p>}
       {!error && products.length === 0 && <p className="catalog-message">Novidades chegando em breve.</p>}
-      <div className="catalog-grid">{products.map((product) => <article className="catalog-card" key={product.id}><div className="catalog-pack"><span>BEYOU</span><b>{product.name}</b><i>✦</i></div>{product.featured && <small className="featured-badge">DESTAQUE</small>}<h3>{product.name}</h3><p>{product.short_description}</p><strong>{money.format(product.price_cents / 100)}</strong><Link href={`/loja/${product.slug}`}>{product.stock_quantity > 0 ? "Ver produto" : "Conhecer produto"} <span>→</span></Link></article>)}</div>
+      <div className="catalog-grid">{products.map((product) => <article className="catalog-card" key={product.id}><div className="catalog-pack"><Image src="https://beyou-teste-nine.vercel.app/beyou-box-hero.webp" alt={product.name} width={992} height={794} sizes="(max-width: 700px) 88vw, 40vw" /></div>{product.featured && <small className="featured-badge">DESTAQUE</small>}<h3>{product.name}</h3><p>{product.short_description}</p><strong>{money.format(product.price_cents / 100)}</strong><Link href={`/loja/${product.slug}`}>{product.stock_quantity > 0 ? "Ver produto" : "Conhecer produto"} <span>→</span></Link></article>)}</div>
     </section></main>;
 }
