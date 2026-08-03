@@ -5,6 +5,7 @@ import {
   CheckoutUnavailableError,
   CheckoutValidationError,
   type CheckoutDraft,
+  type CheckoutCustomer,
   type CreateAddressInput,
   type CustomerAddress,
   type StartCheckoutInput,
@@ -44,6 +45,10 @@ export class CheckoutService {
 
   async listAddresses(): Promise<readonly CustomerAddress[]> {
     return this.repository.listAddresses(await this.userId());
+  }
+
+  async getCustomer(): Promise<CheckoutCustomer | null> {
+    return this.repository.findCustomer(await this.userId());
   }
 
   async createAddress(input: CreateAddressInput): Promise<CustomerAddress> {
