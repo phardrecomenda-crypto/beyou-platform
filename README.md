@@ -120,3 +120,9 @@ The timeout defaults can be overridden for a controlled canary with `SITES_INSTA
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+## Status do roadmap
+
+- Fases 01–03: concluídas
+- Fase 04 — Products: em andamento; arquitetura modular, catálogo, administração, RLS e mídia implementados
+- Fases 05–14: aguardando
+
