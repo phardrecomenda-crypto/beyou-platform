@@ -41,3 +41,20 @@ test("checkout specification preserves approved commercial rules", async () => {
   assert.match(specification, /6 parcelas sem juros/);
   assert.match(specification, /10 parcelas sem juros/);
 });
+
+test("product details expose only label-governed usage metadata", async () => {
+  const domain = await read("modules/products/domain/product.ts");
+  const detail = await read("app/loja/[slug]/page.tsx");
+  assert.match(domain, /productHighlights/);
+  assert.match(domain, /Modo de uso/);
+  assert.match(detail, /productHighlights\(data\)/);
+  assert.match(detail, /ROTINA BEYOU/);
+});
+
+test("repository queries use explicit columns", async () => {
+  const repository = await read("modules/products/infrastructure/supabase-product-repository.ts");
+  assert.doesNotMatch(repository, /select\(["'`]\*["'`]\)/);
+  for (const field of ["id", "slug", "sku", "name", "price_cents", "stock_quantity", "status"]) {
+    assert.match(repository, new RegExp(`\\b${field}\\b`));
+  }
+});
