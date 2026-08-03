@@ -6,6 +6,7 @@ import { CheckoutAuthenticationError } from "../../modules/checkout/domain/check
 import { createCheckoutService } from "../../modules/checkout/infrastructure/checkout-factory";
 import { CheckoutForm } from "./checkout-form";
 import "./checkout.css";
+import "./checkout-payment.css";
 
 export default async function CheckoutPage() {
   const client = await createServerSupabaseClient();
