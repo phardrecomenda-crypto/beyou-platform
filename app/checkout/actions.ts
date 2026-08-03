@@ -32,6 +32,10 @@ export type CheckoutActionResult =
   | Readonly<{ ok: true; checkout: CheckoutDraft }>
   | Readonly<{ ok: false; code: CheckoutErrorCode }>;
 
+export type BillingProfileActionResult =
+  | Readonly<{ ok: true }>
+  | Readonly<{ ok: false; code: "AUTHENTICATION_REQUIRED" | "CPF_INVALID" | "BILLING_PROFILE_ERROR" }>;
+
 function failure(error: unknown): CheckoutErrorCode {
   if (error instanceof CheckoutAuthenticationError) return "AUTHENTICATION_REQUIRED";
   if (error instanceof CheckoutValidationError) return error.code;
@@ -60,4 +64,20 @@ export async function startCheckout(input: StartCheckoutInput): Promise<Checkout
   } catch (error) {
     return { ok: false, code: failure(error) };
   }
+}
+
+export async function saveBillingProfile(cpf: string): Promise<BillingProfileActionResult> {
+  const normalizedCpf = cpf.replace(/\D/g, "");
+  if (!/^\d{11}$/.test(normalizedCpf)) return { ok: false, code: "CPF_INVALID" };
+
+  const client = await createServerSupabaseClient();
+  const { data, error: authenticationError } = await client.auth.getUser();
+  if (authenticationError || !data.user) return { ok: false, code: "AUTHENTICATION_REQUIRED" };
+
+  const { error } = await client.from("billing_profiles").upsert(
+    { user_id: data.user.id, cpf: normalizedCpf, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" },
+  );
+  if (error) return { ok: false, code: error.code === "23514" ? "CPF_INVALID" : "BILLING_PROFILE_ERROR" };
+  return { ok: true };
 }
