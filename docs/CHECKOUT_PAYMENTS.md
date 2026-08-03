@@ -2,7 +2,7 @@
 
 ## Status
 
-Banco e backend de pagamentos implementados, aplicados e validados. A homologação transacional no sandbox depende da configuração segura das credenciais no ambiente de deploy.
+Banco, backend e frontend de pagamentos implementados, aplicados e validados. O código está pronto para homologação transacional no sandbox, que depende da configuração segura das credenciais no ambiente de deploy.
 
 ## Banco
 
@@ -42,6 +42,14 @@ Banco e backend de pagamentos implementados, aplicados e validados. A homologaç
 - atualiza o estado interno da tentativa;
 - responde de modo idempotente.
 
+## Frontend
+
+- CPF de cobrança validado e salvo sob a sessão autenticada;
+- Pix conectado ao endpoint interno, com QR Code e copia-e-cola;
+- cartão conectado ao endpoint interno, com parcelamento conforme a faixa;
+- dados do cartão mantidos somente em memória;
+- erros do gateway apresentados sem expor detalhes internos.
+
 ## Segurança
 
 `SUPABASE_SECRET_KEY`, `ASAAS_API_KEY` e `ASAAS_WEBHOOK_TOKEN` são variáveis server-only. Nenhuma usa o prefixo `NEXT_PUBLIC_`.
@@ -71,13 +79,17 @@ O token configurado no Asaas deve ser exatamente o mesmo valor de `ASAAS_WEBHOOK
 
 - TypeScript strict aprovado;
 - build Next.js aprovado;
-- 30 testes automatizados aprovados;
+- 33 testes automatizados aprovados;
 - contratos Pix, cartão e webhook aprovados;
 - CPF válido aceito;
 - CPF repetido ou inválido recusado;
 - navegador sem escrita direta em pagamentos ou webhooks;
 - nenhuma informação sensível de cartão persistida.
 
+## Homologação
+
+O deployment de produção deve apontar para o commit do frontend integrado ou posterior. Depois do deploy, validar em sandbox: criação de Pix, cobrança por cartão, recebimento idempotente do webhook e transição da tentativa para pagamento confirmado.
+
 ## Próxima etapa
 
-Configurar as três secrets no ambiente de homologação, conectar o frontend do checkout aos endpoints e executar o fluxo completo no Asaas sandbox: Pix, cartão parcelado, webhook e confirmação do pedido.
+Configurar as três secrets no ambiente de homologação e executar o fluxo completo no Asaas sandbox: Pix, cartão parcelado, webhook, confirmação do pagamento e criação do pedido.
