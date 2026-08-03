@@ -1,131 +1,85 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { createServerSupabaseClient } from "../lib/supabase/server";
+import styles from "./commercial.module.css";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { logoutAction } from "./auth/actions";
-import { createBrowserSupabaseClient } from "../lib/supabase/browser";
+type FeaturedProduct = {
+  slug: string;
+  name: string;
+  short_description: string;
+  price_cents: number;
+  stock_quantity: number;
+};
 
-const navItems = [
-  ["Visão geral", "⌂"],
-  ["Loja", "◇"],
-  ["Meus pedidos", "▤"],
-  ["BeCoins", "◉"],
-  ["Minha jornada", "✦"],
+const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+const routine = [
+  { name: "BeFit", detail: "60 cápsulas", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befit.webp", theme: "lime" },
+  { name: "BeFiber", detail: "210 g · Morango", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befiber.webp", theme: "violet" },
+  { name: "BeCalm", detail: "30 ml", image: "https://beyou-teste-nine.vercel.app/beyou-produto-becalm.webp", theme: "cream" },
 ] as const;
 
-const products = [
-  { name: "BeFit", detail: "60 cápsulas", tone: "lime", label: "Energia & rotina" },
-  { name: "BeFiber", detail: "210 g · Morango", tone: "violet", label: "Fibras diárias" },
-  { name: "BeCalm", detail: "30 ml", tone: "white", label: "Sua pausa da noite" },
-] as const;
+export default async function CommercialHomePage() {
+  const supabase = await createServerSupabaseClient();
+  const { data } = await supabase
+    .from("products")
+    .select("slug, name, short_description, price_cents, stock_quantity")
+    .eq("slug", "kit-essencial-beyou")
+    .eq("status", "ACTIVE")
+    .maybeSingle<FeaturedProduct>();
 
-export default function Home() {
-  const router = useRouter();
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
-  const [active, setActive] = useState<(typeof navItems)[number][0]>("Visão geral");
-  const [notice, setNotice] = useState<string | null>(null);
-  const [profile, setProfile] = useState({ name: "Cliente BEYOU", role: "CLIENTE" });
-
-  useEffect(() => {
-    let activeRequest = true;
-    async function loadProfile() {
-      const { data: authData } = await supabase.auth.getUser();
-      if (!authData.user) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("name, role")
-        .eq("user_id", authData.user.id)
-        .single();
-      if (activeRequest && data) setProfile({ name: data.name, role: data.role });
-    }
-    void loadProfile();
-    return () => { activeRequest = false; };
-  }, [supabase]);
-
-  const firstName = profile.name.split(" ")[0] || "Cliente";
-  const initials = profile.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "BY";
-  const roleLabel = profile.role.toLowerCase().replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
-
-  function choose(section: (typeof navItems)[number][0]) {
-    setActive(section);
-    if (section === "Loja") {
-      router.push("/loja");
-      return;
-    }
-    if (section !== "Visão geral") setNotice(`${section} será conectada ao Supabase no próximo pacote.`);
-  }
+  const product = data;
+  const price = product ? money.format(product.price_cents / 100) : "Consulte na loja";
+  const installment = product ? money.format(product.price_cents / 300) : null;
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar">
-        <div className="brand"><span>BE</span>YOU<i>Nutrition</i></div>
+    <main className={styles.page}>
+      <div className={styles.benefits} aria-label="Benefícios da loja">
+        <span>Envio para todo o Brasil</span><span>Frete grátis acima de R$ 499</span><span>Compra segura</span><span>Acumule BeCoins</span>
+      </div>
+
+      <header className={styles.header}>
+        <Link className={styles.logo} href="/" aria-label="BEYOU — início"><b>BE</b>YOU<small>Nutrition</small></Link>
         <nav aria-label="Navegação principal">
-          {navItems.map(([label, icon]) => (
-            <button key={label} className={active === label ? "nav-item active" : "nav-item"} onClick={() => choose(label)}>
-              <b aria-hidden="true">{icon}</b><span>{label}</span>
-            </button>
-          ))}
+          <Link href="/">Início</Link><Link href="/loja">Loja</Link><Link href="#produtos">Produtos</Link><Link href="#proposito">Quem somos</Link>
         </nav>
-        <div className="support-card">
-          <span>?</span><strong>Precisa de ajuda?</strong>
-          <p>Nossa equipe está pronta para você.</p>
-          <button onClick={() => setNotice("Atendimento BEYOU selecionado.")}>Falar com o SAC</button>
+        <div className={styles.actions}><Link href="/login">Entrar</Link><Link className={styles.areaButton} href="/minha-area">Minha área</Link></div>
+      </header>
+
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p>BEYOU BOX · ROTINA COMPLETA EM 3 ETAPAS</p>
+          <h1>Três momentos.<br />Uma rotina.<br /><em>Sua melhor versão.</em></h1>
+          <span>{product?.short_description ?? "BeFit, BeFiber e BeCalm juntos em uma rotina simples para acompanhar o seu dia."}</span>
+          <div className={styles.price}><small>BEYOU BOX</small><strong>{price}</strong>{installment && <span>ou 3x de {installment} sem juros</span>}</div>
+          <div className={styles.heroActions}><Link href={product ? `/loja/${product.slug}` : "/loja"}>Conhecer a BeYou Box <span>→</span></Link><small>Limite de 1 kit por CPF</small></div>
         </div>
-        <form action={logoutAction}><button className="logout" type="submit">↪ <span>Sair da conta</span></button></form>
-      </aside>
-
-      <section className="content">
-        <header>
-          <button className="mobile-brand" aria-label="Início">BE<span>YOU</span></button>
-          <label className="search"><span>⌕</span><input aria-label="Buscar" placeholder="Buscar na BEYOU" /></label>
-          <div className="header-actions">
-            <button aria-label="Notificações" className="icon-button">♢<i /></button>
-            <div className="profile"><div className="avatar">{initials}</div><div><strong>{profile.name}</strong><small>{roleLabel} BEYOU</small></div><span>⌄</span></div>
-          </div>
-        </header>
-
-        <div className="dashboard">
-          <section className="welcome">
-            <div><p>SUA ROTINA BEYOU</p><h1>Olá, {firstName} <span>✦</span></h1><h2>Hoje é um ótimo dia para cuidar de você.</h2></div>
-            <button onClick={() => choose("Loja")}>Ver meus produtos <span>→</span></button>
-          </section>
-
-          {notice && <div className="toast" role="status">{notice}<button onClick={() => setNotice(null)}>×</button></div>}
-
-          <section className="stats" aria-label="Resumo da conta">
-            <article><div className="stat-icon green">◎</div><div><small>MEUS BECOINS</small><strong>2.450 <em>BC</em></strong><p>Equivale a <b>R$ 24,50</b></p></div><button onClick={() => choose("BeCoins")}>→</button></article>
-            <article><div className="stat-icon purple">▣</div><div><small>PRÓXIMA ENTREGA</small><strong>12 Ago</strong><p>Kit Essencial · Assinatura</p></div><button onClick={() => choose("Meus pedidos")}>→</button></article>
-            <article><div className="stat-icon coral">♥</div><div><small>MINHA JORNADA</small><strong>7 dias</strong><p>Você está construindo constância</p></div><button onClick={() => choose("Minha jornada")}>→</button></article>
-          </section>
-
-          <section className="main-grid">
-            <div className="products-panel">
-              <div className="section-title"><div><small>SUA ROTINA BEYOU</small><h3>Seus produtos de hoje</h3></div><button onClick={() => choose("Loja")}>Ver todos <span>→</span></button></div>
-              <div className="product-list">
-                {products.map((product, index) => (
-                  <article className="product" key={product.name}>
-                    <div className={`pack ${product.tone}`}><span>BEYOU</span><strong>{product.name}</strong><i>{index === 1 ? "●" : "✦"}</i></div>
-                    <div className="product-copy"><span className="pill">{product.label}</span><h4>{product.name}</h4><p>{product.detail}</p><small>{index === 2 ? "À noite, antes de dormir" : index === 1 ? "1 medida pela manhã" : "2 cápsulas pela manhã"}</small></div>
-                    <button className="check" aria-label={`Marcar ${product.name} como usado`} onClick={(event) => event.currentTarget.classList.toggle("done")}>✓</button>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <aside className="journey-card">
-              <div className="journey-top"><span>✦</span><small>SUA MELHOR VERSÃO</small><h3>Uma escolha por dia.<br />Uma mudança para sempre.</h3><p>Complete sua rotina e acompanhe sua evolução.</p></div>
-              <div className="progress-copy"><span>Progresso de hoje</span><b>2 de 3</b></div>
-              <div className="progress"><i /></div>
-              <div className="days">{["S", "T", "Q", "Q", "S", "S", "D"].map((day, i) => <div key={`${day}-${i}`}><span className={i < 5 ? "complete" : i === 5 ? "today" : ""}>{i < 5 ? "✓" : day}</span><small>{i === 5 ? "Hoje" : day}</small></div>)}</div>
-              <button onClick={() => choose("Minha jornada")}>Continuar minha jornada <span>→</span></button>
-            </aside>
-          </section>
+        <div className={styles.heroVisual}>
+          <div className={styles.glow} />
+          <Image src="https://beyou-teste-nine.vercel.app/beyou-box-hero.webp" alt="BeYou Box com BeFit, BeFiber e BeCalm" width={992} height={794} priority sizes="(max-width: 800px) 92vw, 48vw" />
+          <span className={styles.floatLabel}>BeFit · BeFiber · BeCalm</span>
         </div>
       </section>
 
-      <nav className="bottom-nav" aria-label="Navegação mobile">
-        {navItems.slice(0, 5).map(([label, icon]) => <button key={label} onClick={() => choose(label)} className={active === label ? "active" : ""}><b>{icon}</b><span>{label === "Visão geral" ? "Início" : label.replace("Meus ", "")}</span></button>)}
-      </nav>
+      <section className={styles.trust} aria-label="Compromissos BEYOU">
+        <article><b>01</b><div><strong>Rotina simples</strong><span>Produtos pensados para acompanhar diferentes momentos do seu dia.</span></div></article>
+        <article><b>02</b><div><strong>Experiência integrada</strong><span>Loja, acompanhamento e benefícios em uma única plataforma.</span></div></article>
+        <article><b>03</b><div><strong>Cuidado contínuo</strong><span>Tecnologia e relacionamento para apoiar escolhas mais conscientes.</span></div></article>
+      </section>
+
+      <section className={styles.products} id="produtos">
+        <div className={styles.sectionHeading}><div><small>ROTINA BEYOU</small><h2>Um produto para cada momento.</h2></div><Link href="/loja">Ver loja completa →</Link></div>
+        <div className={styles.productGrid}>
+          {routine.map((item, index) => <article className={`${styles.productCard} ${styles[item.theme]}`} key={item.name}>
+            <div><small>ETAPA {index + 1}</small><h3>{item.name}</h3><p>{item.detail}</p></div>
+            <Image src={item.image} alt={`Embalagem ${item.name}`} width={466} height={760} sizes="(max-width: 700px) 70vw, 26vw" />
+          </article>)}
+        </div>
+      </section>
+
+      <section className={styles.purpose} id="proposito"><small>SEJA VOCÊ NA SUA MELHOR VERSÃO</small><h2>Ciência, tecnologia, acompanhamento e comunidade em um só ecossistema.</h2><p>A BEYOU existe para tornar a jornada de saúde e bem-estar mais simples, conectada e sustentável.</p><Link href="/cadastro">Criar minha conta →</Link></section>
+
+      <footer className={styles.footer}><div className={styles.logo}><b>BE</b>YOU<small>Nutrition</small></div><p>© 2026 BEYOU. Todos os direitos reservados.</p><div><Link href="/loja">Loja</Link><Link href="/login">Minha conta</Link></div></footer>
     </main>
   );
 }
