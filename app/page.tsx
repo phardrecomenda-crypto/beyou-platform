@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { logoutAction } from "./auth/actions";
 import { createBrowserSupabaseClient } from "../lib/supabase/browser";
 
@@ -19,6 +20,7 @@ const products = [
 ] as const;
 
 export default function Home() {
+  const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const [active, setActive] = useState<(typeof navItems)[number][0]>("Visão geral");
   const [notice, setNotice] = useState<string | null>(null);
@@ -46,6 +48,10 @@ export default function Home() {
 
   function choose(section: (typeof navItems)[number][0]) {
     setActive(section);
+    if (section === "Loja") {
+      router.push("/loja");
+      return;
+    }
     if (section !== "Visão geral") setNotice(`${section} será conectada ao Supabase no próximo pacote.`);
   }
 
