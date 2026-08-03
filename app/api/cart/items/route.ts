@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createServerSupabaseClient } from "../../../../../lib/supabase/server";
-import { createCartService } from "../../../../../modules/checkout/infrastructure/cart-factory";
-import { CartAuthenticationError, CartUnavailableError } from "../../../../../modules/checkout/domain/cart";
+import { createServerSupabaseClient } from "../../../../lib/supabase/server";
+import { createCartService } from "../../../../modules/checkout/infrastructure/cart-factory";
+import { CartAuthenticationError, CartUnavailableError } from "../../../../modules/checkout/domain/cart";
 
 const inputSchema = z.object({ productId: z.string().uuid() });
 
