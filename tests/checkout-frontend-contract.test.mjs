@@ -37,3 +37,10 @@ test("cart redirects unauthenticated users back to the requested drawer", async 
   assert.match(store, /encodeURIComponent/);
   assert.match(store, /cart=open/);
 });
+
+test("cart synchronizes refreshed server state and exposes failures", async () => {
+  const store = await read("modules/checkout/presentation/cart-store.tsx");
+  assert.match(store, /setCart\(initialCart\)/);
+  assert.match(store, /\[initialCart\]/);
+  assert.match(store, /setOpened\(true\);\s*setMessage/);
+});

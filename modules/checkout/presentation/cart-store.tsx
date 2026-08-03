@@ -33,6 +33,10 @@ export function CartStore({ children, initialCart, products }: Readonly<{ childr
   }, []);
 
   useEffect(() => {
+    setCart(initialCart);
+  }, [initialCart]);
+
+  useEffect(() => {
     if (!opened) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -60,6 +64,7 @@ export function CartStore({ children, initialCart, products }: Readonly<{ childr
       router.push(`/login?next=${encodeURIComponent(`${pathname}?cart=open`)}`);
       return;
     }
+    setOpened(true);
     setMessage(result.code === "PRODUCT_UNAVAILABLE"
       ? "Este produto não está disponível."
       : "Não foi possível atualizar o carrinho agora.");
