@@ -22,7 +22,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { data } = await supabase.auth.getClaims();
-  const isPublic = PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
+  const isPublic = request.nextUrl.pathname === "/" || PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
 
   if (!data?.claims && !isPublic) {
     const url = request.nextUrl.clone();
@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
 
   if (data?.claims && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/cadastro")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/minha-area";
     url.search = "";
     return NextResponse.redirect(url);
   }
