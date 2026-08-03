@@ -7,8 +7,8 @@
   },
   "scripts": {
     "install:ci": "bash scripts/install-ci.sh",
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "vite",
+    "build": "bash scripts/build-verified.sh",
     "start": "next start",
     "test": "next build && node --test tests/*.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
