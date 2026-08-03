@@ -33,3 +33,24 @@ export type ProductInput = Readonly<{
   status: ProductStatus;
   featured: boolean;
 }>;
+
+export type ProductHighlight = Readonly<{
+  label: string;
+  value: string;
+}>;
+
+function metadataText(metadata: Readonly<Record<string, unknown>>, key: string) {
+  const value = metadata[key];
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+export function productHighlights(product: Product): readonly ProductHighlight[] {
+  const candidates: readonly ProductHighlight[] = [
+    { label: "Conteúdo", value: metadataText(product.metadata, "size") ?? "" },
+    { label: "Momento", value: metadataText(product.metadata, "moment") ?? "" },
+    { label: "Sabor", value: metadataText(product.metadata, "flavor") ?? "" },
+    { label: "Modo de uso", value: metadataText(product.metadata, "usage") ?? "" },
+  ];
+
+  return candidates.filter((highlight) => highlight.value.length > 0);
+}
