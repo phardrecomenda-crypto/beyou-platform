@@ -44,3 +44,15 @@ test("cart synchronizes refreshed server state and exposes failures", async () =
   assert.match(store, /\[initialCart\]/);
   assert.match(store, /setOpened\(true\);\s*setMessage/);
 });
+
+test("cart mutations use the authenticated HTTP endpoint", async () => {
+  const [store, route] = await Promise.all([
+    read("modules/checkout/presentation/cart-store.tsx"),
+    read("app/api/cart/items/route.ts"),
+  ]);
+  assert.match(store, /fetch\("\/api\/cart\/items"/);
+  assert.match(store, /method: "POST" \| "DELETE"/);
+  assert.match(route, /createServerSupabaseClient/);
+  assert.match(route, /export async function POST/);
+  assert.match(route, /export async function DELETE/);
+});

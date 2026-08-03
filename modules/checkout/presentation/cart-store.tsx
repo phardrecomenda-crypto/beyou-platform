@@ -6,7 +6,19 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, useTra
 import type { ReactNode } from "react";
 import type { Product } from "../../products/domain/product";
 import type { Cart } from "../domain/cart";
-import { addProductToCart, removeProductFromCart } from "../../../app/loja/cart-actions";
+
+type CartApiResult = { cart?: Cart; code?: "AUTHENTICATION_REQUIRED" | "PRODUCT_UNAVAILABLE" | "CART_ERROR" };
+
+async function updateCart(productId: string, method: "POST" | "DELETE") {
+  const response = await fetch("/api/cart/items", {
+    method,
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ productId }),
+  });
+  const result = await response.json().catch(() => ({})) as CartApiResult;
+  if (!response.ok || !result.cart) throw new Error(result.code ?? "CART_ERROR");
+  return result.cart;
+}
 
 type CartContextValue = Readonly<{
   cart: Cart | null;
@@ -51,31 +63,33 @@ export function CartStore({ children, initialCart, products }: Readonly<{ childr
     };
   }, [opened]);
 
-  const run = (operation: () => ReturnType<typeof addProductToCart>) => startTransition(async () => {
+  const run = (productId: string, method: "POST" | "DELETE") => startTransition(async () => {
     setMessage(null);
-    const result = await operation();
-    if (result.ok) {
-      setCart(result.cart);
+    try {
+      const updated = await updateCart(productId, method);
+      setCart(updated);
       setOpened(true);
       router.refresh();
       return;
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "CART_ERROR";
+      if (code === "AUTHENTICATION_REQUIRED") {
+        router.push(`/login?next=${encodeURIComponent(`${pathname}?cart=open`)}`);
+        return;
+      }
+      setOpened(true);
+      setMessage(code === "PRODUCT_UNAVAILABLE"
+        ? "Este produto não está disponível."
+        : "Não foi possível atualizar o carrinho agora.");
     }
-    if (result.code === "AUTHENTICATION_REQUIRED") {
-      router.push(`/login?next=${encodeURIComponent(`${pathname}?cart=open`)}`);
-      return;
-    }
-    setOpened(true);
-    setMessage(result.code === "PRODUCT_UNAVAILABLE"
-      ? "Este produto não está disponível."
-      : "Não foi possível atualizar o carrinho agora.");
   });
 
   const value = useMemo<CartContextValue>(() => ({
     cart,
     busy,
     open: () => setOpened(true),
-    add: (productId) => run(() => addProductToCart(productId)),
-    remove: (productId) => run(() => removeProductFromCart(productId)),
+    add: (productId) => run(productId, "POST"),
+    remove: (productId) => run(productId, "DELETE"),
   // run only closes over the current route and router.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [cart, busy, pathname, router]);
