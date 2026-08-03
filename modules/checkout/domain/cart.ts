@@ -44,7 +44,7 @@ export class CartAuthenticationError extends Error {
 }
 
 export class CartConflictError extends Error {
-  constructor(public readonly code: "PRODUCT_ALREADY_IN_CART" | "ACTIVE_CART_ALREADY_EXISTS") {
+  constructor(public readonly code: "ACTIVE_CART_ALREADY_EXISTS") {
     super(code);
     this.name = "CartConflictError";
   }
