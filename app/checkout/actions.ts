@@ -75,7 +75,7 @@ export async function saveBillingProfile(cpf: string): Promise<BillingProfileAct
   if (authenticationError || !data.user) return { ok: false, code: "AUTHENTICATION_REQUIRED" };
 
   const { error } = await client.from("billing_profiles").upsert(
-    { user_id: data.user.id, cpf: normalizedCpf, updated_at: new Date().toISOString() },
+    { cpf: normalizedCpf },
     { onConflict: "user_id" },
   );
   if (error) return { ok: false, code: error.code === "23514" ? "CPF_INVALID" : "BILLING_PROFILE_ERROR" };

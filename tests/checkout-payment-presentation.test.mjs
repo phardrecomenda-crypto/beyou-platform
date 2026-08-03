@@ -24,5 +24,6 @@ test("billing profile is saved under the authenticated user", async () => {
   const source = await readFile(actionsPath, "utf8");
   assert.match(source, /auth\.getUser\(\)/);
   assert.match(source, /from\("billing_profiles"\)\.upsert/);
-  assert.match(source, /user_id: data\.user\.id/);
+  assert.match(source, /\{ cpf: normalizedCpf \}/);
+  assert.doesNotMatch(source, /user_id: data\.user\.id|updated_at:/);
 });
