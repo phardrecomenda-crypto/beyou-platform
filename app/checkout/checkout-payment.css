@@ -1,0 +1,43 @@
+.card-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.card-security {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.payment-result {
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  padding: 25px;
+  border: 1px solid #d9e8a6;
+  border-radius: 24px;
+  background: #fbfff0;
+  text-align: center;
+}
+
+.payment-result > span {
+  color: #5b8b00;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.payment-result h2,
+.payment-result p { margin: 0; }
+.payment-result img { width: 220px; height: 220px; border: 10px solid #fff; border-radius: 18px; }
+.payment-result label { width: min(100%, 560px); color: #53465f; font-size: 12px; font-weight: 800; text-align: left; }
+.payment-result textarea { width: 100%; margin-top: 7px; padding: 12px; border: 1px solid #d8dfbd; border-radius: 12px; resize: none; }
+.payment-result p { color: var(--muted); font-size: 12px; }
+
+@media (max-width: 560px) {
+  .card-fields { grid-template-columns: 1fr; }
+  .card-fields .wide { grid-column: auto; }
+}
