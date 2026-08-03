@@ -3,13 +3,14 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "../lib/supabase/server";
 import { createProductService } from "../modules/products/infrastructure/product-factory";
 import styles from "./commercial.module.css";
+import audit from "./commercial-audit.module.css";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const routine = [
-  { name: "BeFit", detail: "60 cápsulas", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befit.webp", theme: "lime" },
-  { name: "BeFiber", detail: "210 g · Morango", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befiber.webp", theme: "violet" },
-  { name: "BeCalm", detail: "30 ml", image: "https://beyou-teste-nine.vercel.app/beyou-produto-becalm.webp", theme: "cream" },
+  { name: "BeFit", detail: "60 cápsulas · manhã", href:"/loja/befit", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befit.webp", theme: "lime" },
+  { name: "BeFiber", detail: "210 g · durante o dia", href:"/loja/befiber-morango", image: "https://beyou-teste-nine.vercel.app/beyou-produto-befiber.webp", theme: "violet" },
+  { name: "BeCalm", detail: "30 ml · noite", href:"/loja/becalm", image: "https://beyou-teste-nine.vercel.app/beyou-produto-becalm.webp", theme: "cream" },
 ] as const;
 
 export default async function CommercialHomePage() {
@@ -19,9 +20,9 @@ export default async function CommercialHomePage() {
   const installment = product?.priceCents !== null && product ? money.format(product.priceCents / 300) : null;
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${audit.scroll}`}>
       <div className={styles.benefits} aria-label="Benefícios da loja">
-        <span>Envio para todo o Brasil</span><span>Frete grátis acima de R$ 499</span><span>Compra segura</span><span>Acumule BeCoins</span>
+        <Link className={audit.benefitLink} href="/loja">Envio para todo o Brasil</Link><Link className={audit.benefitLink} href="/loja">Frete grátis acima de R$ 600</Link><Link className={audit.benefitLink} href="#proposito">Compra segura</Link><Link className={audit.benefitLink} href="/cadastro">Acumule BeCoins</Link>
       </div>
 
       <header className={styles.header}>
@@ -38,7 +39,7 @@ export default async function CommercialHomePage() {
           <h1>Três momentos.<br />Uma rotina.<br /><em>Sua melhor versão.</em></h1>
           <span>{product?.shortDescription ?? "BeFit, BeFiber e BeCalm juntos em uma rotina simples para acompanhar o seu dia."}</span>
           <div className={styles.price}><small>BEYOU BOX</small><strong>{price}</strong>{installment && <span>ou 3x de {installment} sem juros</span>}</div>
-          <div className={styles.heroActions}><Link href={product ? `/loja/${product.slug}` : "/loja"}>Conhecer a BeYou Box <span>→</span></Link><small>Limite de 1 kit por CPF</small></div>
+          <div className={styles.heroActions}><Link href={product ? `/loja/${product.slug}?cart=open` : "/loja"}>Comprar a BeYou Box <span>→</span></Link><small>Máximo de 1 unidade por pedido</small></div>
         </div>
         <div className={styles.heroVisual}>
           <div className={styles.glow} />
@@ -56,10 +57,10 @@ export default async function CommercialHomePage() {
       <section className={styles.products} id="produtos">
         <div className={styles.sectionHeading}><div><small>ROTINA BEYOU</small><h2>Um produto para cada momento.</h2></div><Link href="/loja">Ver loja completa →</Link></div>
         <div className={styles.productGrid}>
-          {routine.map((item, index) => <article className={`${styles.productCard} ${styles[item.theme]}`} key={item.name}>
+          {routine.map((item, index) => <Link href={item.href} className={`${styles.productCard} ${styles[item.theme]} ${audit.clickableCard}`} key={item.name}>
             <div><small>ETAPA {index + 1}</small><h3>{item.name}</h3><p>{item.detail}</p></div>
             <Image src={item.image} alt={`Embalagem ${item.name}`} width={466} height={760} sizes="(max-width: 700px) 70vw, 26vw" />
-          </article>)}
+          </Link>)}
         </div>
       </section>
 
