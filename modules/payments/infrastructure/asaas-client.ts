@@ -5,6 +5,19 @@ import { PaymentError } from "../domain/payment";
 
 type Json = Record<string, unknown>;
 
+type AsaasError = {
+  code?: unknown;
+  description?: unknown;
+};
+
+function safeProviderErrors(data: Json) {
+  if (!Array.isArray(data.errors)) return [];
+  return data.errors.slice(0, 5).map((error: AsaasError) => ({
+    code: typeof error?.code === "string" ? error.code.slice(0, 80) : "UNKNOWN",
+    description: typeof error?.description === "string" ? error.description.slice(0, 240) : undefined,
+  }));
+}
+
 export class AsaasClient implements PaymentGateway {
   private readonly baseUrl = process.env.ASAAS_API_URL ?? "https://api-sandbox.asaas.com/v3";
   private readonly apiKey = process.env.ASAAS_API_KEY;
@@ -17,7 +30,14 @@ export class AsaasClient implements PaymentGateway {
       cache: "no-store",
     });
     const data = await response.json().catch(() => ({})) as Json;
-    if (!response.ok) throw new PaymentError("PAYMENT_PROVIDER_ERROR");
+    if (!response.ok) {
+      console.error("[payments/asaas] provider request failed", {
+        path,
+        status: response.status,
+        errors: safeProviderErrors(data),
+      });
+      throw new PaymentError("PAYMENT_PROVIDER_ERROR");
+    }
     return data as T;
   }
 
