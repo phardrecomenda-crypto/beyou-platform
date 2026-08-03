@@ -1,0 +1,16 @@
+begin;
+select plan(12);
+select has_type('public', 'user_role', 'user_role enum exists');
+select has_type('public', 'profile_status', 'profile_status enum exists');
+select has_table('public', 'profiles', 'profiles table exists');
+select has_pk('public', 'profiles', 'profiles has a primary key');
+select col_is_unique('public', 'profiles', 'user_id', 'user_id is unique');
+select fk_ok('public', 'profiles', 'user_id', 'auth', 'users', 'id', 'profile links to auth.users');
+select row_security_active('public', 'profiles', 'RLS is active on profiles');
+select has_policy('public', 'profiles', 'profiles_select_own', 'own-profile select policy exists');
+select has_policy('public', 'profiles', 'profiles_update_own', 'own-profile update policy exists');
+select has_trigger('auth', 'users', 'on_auth_user_created', 'auth profile trigger exists');
+select has_trigger('public', 'profiles', 'profiles_set_updated_at', 'updated_at trigger exists');
+select table_privs_are('public', 'profiles', 'anon', array[]::text[], 'anonymous users have no profile privileges');
+select * from finish();
+rollback;
