@@ -15,6 +15,16 @@ export async function POST() {
     return NextResponse.json({ payment });
   } catch (error) {
     const code = error instanceof PaymentError ? error.code : "PAYMENT_PROVIDER_ERROR";
+    if (!(error instanceof PaymentError)) {
+      const safeError = typeof error === "object" && error !== null
+        ? error as { code?: unknown; status?: unknown; name?: unknown }
+        : {};
+      console.error("[payments/pix] checkout preparation failed", {
+        name: typeof safeError.name === "string" ? safeError.name.slice(0, 80) : "UNKNOWN",
+        code: typeof safeError.code === "string" ? safeError.code.slice(0, 80) : "UNKNOWN",
+        status: typeof safeError.status === "number" ? safeError.status : undefined,
+      });
+    }
     const status = code === "PAYMENT_CONFIGURATION_MISSING" ? 503 : code === "CHECKOUT_NOT_READY" ? 409 : 502;
     return NextResponse.json({ code }, { status });
   }
