@@ -1,5 +1,6 @@
 import type {
   CheckoutDraft,
+  CheckoutCustomer,
   CreateAddressInput,
   CustomerAddress,
   StartCheckoutInput,
@@ -10,6 +11,7 @@ export interface CheckoutSession {
 }
 
 export interface CheckoutRepository {
+  findCustomer(userId: string): Promise<CheckoutCustomer | null>;
   listAddresses(userId: string): Promise<readonly CustomerAddress[]>;
   createAddress(userId: string, input: CreateAddressInput): Promise<CustomerAddress>;
   findAddressById(userId: string, addressId: string): Promise<CustomerAddress | null>;
