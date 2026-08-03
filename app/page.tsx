@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { logoutAction } from "./auth/actions";
+import { createBrowserSupabaseClient } from "../lib/supabase/browser";
 
 const navItems = [
   ["Visão geral", "⌂"],
@@ -18,8 +19,30 @@ const products = [
 ] as const;
 
 export default function Home() {
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const [active, setActive] = useState<(typeof navItems)[number][0]>("Visão geral");
   const [notice, setNotice] = useState<string | null>(null);
+  const [profile, setProfile] = useState({ name: "Cliente BEYOU", role: "CLIENTE" });
+
+  useEffect(() => {
+    let activeRequest = true;
+    async function loadProfile() {
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("name, role")
+        .eq("user_id", authData.user.id)
+        .single();
+      if (activeRequest && data) setProfile({ name: data.name, role: data.role });
+    }
+    void loadProfile();
+    return () => { activeRequest = false; };
+  }, [supabase]);
+
+  const firstName = profile.name.split(" ")[0] || "Cliente";
+  const initials = profile.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "BY";
+  const roleLabel = profile.role.toLowerCase().replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
 
   function choose(section: (typeof navItems)[number][0]) {
     setActive(section);
@@ -51,13 +74,13 @@ export default function Home() {
           <label className="search"><span>⌕</span><input aria-label="Buscar" placeholder="Buscar na BEYOU" /></label>
           <div className="header-actions">
             <button aria-label="Notificações" className="icon-button">♢<i /></button>
-            <div className="profile"><div className="avatar">BN</div><div><strong>Bárbara Nemer</strong><small>Cliente BEYOU</small></div><span>⌄</span></div>
+            <div className="profile"><div className="avatar">{initials}</div><div><strong>{profile.name}</strong><small>{roleLabel} BEYOU</small></div><span>⌄</span></div>
           </div>
         </header>
 
         <div className="dashboard">
           <section className="welcome">
-            <div><p>SEGUNDA-FEIRA, 3 DE AGOSTO</p><h1>Bom dia, Bárbara <span>✦</span></h1><h2>Hoje é um ótimo dia para cuidar de você.</h2></div>
+            <div><p>SUA ROTINA BEYOU</p><h1>Olá, {firstName} <span>✦</span></h1><h2>Hoje é um ótimo dia para cuidar de você.</h2></div>
             <button onClick={() => choose("Loja")}>Ver meus produtos <span>→</span></button>
           </section>
 
