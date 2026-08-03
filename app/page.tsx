@@ -1,15 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "../lib/supabase/server";
+import { createProductService } from "../modules/products/infrastructure/product-factory";
 import styles from "./commercial.module.css";
-
-type FeaturedProduct = {
-  slug: string;
-  name: string;
-  short_description: string;
-  price_cents: number;
-  stock_quantity: number;
-};
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -21,16 +14,9 @@ const routine = [
 
 export default async function CommercialHomePage() {
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
-    .from("products")
-    .select("slug, name, short_description, price_cents, stock_quantity")
-    .eq("slug", "kit-essencial-beyou")
-    .eq("status", "ACTIVE")
-    .maybeSingle<FeaturedProduct>();
-
-  const product = data;
-  const price = product ? money.format(product.price_cents / 100) : "Consulte na loja";
-  const installment = product ? money.format(product.price_cents / 300) : null;
+  const product = await createProductService(supabase).getPublished("kit-essencial-beyou");
+  const price = product?.priceCents !== null && product ? money.format(product.priceCents / 100) : "Consulte na loja";
+  const installment = product?.priceCents !== null && product ? money.format(product.priceCents / 300) : null;
 
   return (
     <main className={styles.page}>
@@ -50,7 +36,7 @@ export default async function CommercialHomePage() {
         <div className={styles.heroCopy}>
           <p>BEYOU BOX · ROTINA COMPLETA EM 3 ETAPAS</p>
           <h1>Três momentos.<br />Uma rotina.<br /><em>Sua melhor versão.</em></h1>
-          <span>{product?.short_description ?? "BeFit, BeFiber e BeCalm juntos em uma rotina simples para acompanhar o seu dia."}</span>
+          <span>{product?.shortDescription ?? "BeFit, BeFiber e BeCalm juntos em uma rotina simples para acompanhar o seu dia."}</span>
           <div className={styles.price}><small>BEYOU BOX</small><strong>{price}</strong>{installment && <span>ou 3x de {installment} sem juros</span>}</div>
           <div className={styles.heroActions}><Link href={product ? `/loja/${product.slug}` : "/loja"}>Conhecer a BeYou Box <span>→</span></Link><small>Limite de 1 kit por CPF</small></div>
         </div>
