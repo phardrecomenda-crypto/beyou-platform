@@ -23,7 +23,7 @@ export async function loginAction(_: AuthState, formData: FormData): Promise<Aut
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { error: "E-mail ou senha incorretos." };
-  redirect("/");
+  redirect("/minha-area");
 }
 
 export async function signUpAction(_: AuthState, formData: FormData): Promise<AuthState> {
@@ -41,7 +41,7 @@ export async function signUpAction(_: AuthState, formData: FormData): Promise<Au
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const { error } = await supabase.auth.signUp({
     ...parsed.data,
-    options: { data: { full_name: name }, emailRedirectTo: `${origin}/auth/callback?next=/` },
+    options: { data: { full_name: name }, emailRedirectTo: `${origin}/auth/callback?next=/minha-area` },
   });
   if (error) return { error: error.message.includes("registered") ? "Este e-mail já possui cadastro." : "Não foi possível criar sua conta." };
   return { success: "Cadastro realizado. Confira seu e-mail para confirmar a conta." };
