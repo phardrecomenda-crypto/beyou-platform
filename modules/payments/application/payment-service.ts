@@ -23,9 +23,12 @@ export class PaymentService {
   }
 
   private async prepare(userId: string, method: PaymentMethod) {
+    console.info("[payments] preparation started", { method });
     const context = await this.repository.loadReadyContext(userId, method);
+    console.info("[payments] checkout context loaded", { method, ready: Boolean(context) });
     if (!context) throw new PaymentError("CHECKOUT_NOT_READY");
     const open = await this.repository.findOpenAttempt(context.checkoutDraftId, method);
+    console.info("[payments] open attempt checked", { method, found: Boolean(open) });
     return { context, open };
   }
 
@@ -33,6 +36,7 @@ export class PaymentService {
     const { context, open } = await this.prepare(userId, "PIX");
     if (open?.pixCopyPaste) return open;
     const attempt = open ?? await this.repository.createAttempt(context);
+    console.info("[payments] payment attempt ready", { method: "PIX" });
     const customerId = await this.customer(context);
     const payment = await this.gateway.createPix(customerId, attempt.id, context.amountCents);
     await this.repository.attachProvider(attempt.id, payment.id, payment.status);

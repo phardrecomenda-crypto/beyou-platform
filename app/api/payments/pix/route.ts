@@ -17,12 +17,16 @@ export async function POST() {
     const code = error instanceof PaymentError ? error.code : "PAYMENT_PROVIDER_ERROR";
     if (!(error instanceof PaymentError)) {
       const safeError = typeof error === "object" && error !== null
-        ? error as { code?: unknown; status?: unknown; name?: unknown }
+        ? error as { code?: unknown; status?: unknown; name?: unknown; message?: unknown }
         : {};
+      const safeMessage = typeof safeError.message === "string"
+        ? safeError.message.replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, "[id]").slice(0, 240)
+        : typeof error === "string" ? error.slice(0, 240) : undefined;
       console.error("[payments/pix] checkout preparation failed", {
         name: typeof safeError.name === "string" ? safeError.name.slice(0, 80) : "UNKNOWN",
         code: typeof safeError.code === "string" ? safeError.code.slice(0, 80) : "UNKNOWN",
         status: typeof safeError.status === "number" ? safeError.status : undefined,
+        message: safeMessage,
       });
     }
     const status = code === "PAYMENT_CONFIGURATION_MISSING" ? 503 : code === "CHECKOUT_NOT_READY" ? 409 : 502;
