@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CheckoutRepository, CheckoutSession } from "../application/checkout-repository";
 import type {
   CheckoutDraft,
+  CheckoutCustomer,
   CheckoutPaymentMethod,
   CheckoutStatus,
   CreateAddressInput,
@@ -26,6 +27,7 @@ type DraftRow = {
   expires_at: string; created_at: string; updated_at: string;
 };
 type CartSummaryRow = { cart_id: string; item_count: number };
+type ProfileRow = { name: string; email: string; phone: string | null };
 
 const mapAddress = (row: AddressRow): CustomerAddress => ({
   id: row.id, userId: row.user_id, label: row.label, recipientName: row.recipient_name,
@@ -53,6 +55,14 @@ export class SupabaseCheckoutSession implements CheckoutSession {
 
 export class SupabaseCheckoutRepository implements CheckoutRepository {
   constructor(private readonly client: SupabaseClient) {}
+
+  async findCustomer(userId: string): Promise<CheckoutCustomer | null> {
+    const { data, error } = await this.client.from("profiles")
+      .select("name, email, phone").eq("user_id", userId).maybeSingle();
+    if (error) throw error;
+    const row = data as ProfileRow | null;
+    return row ? { name: row.name, email: row.email, phone: row.phone } : null;
+  }
 
   async listAddresses(userId: string) {
     const { data, error } = await this.client.from("customer_addresses").select(addressFields)
