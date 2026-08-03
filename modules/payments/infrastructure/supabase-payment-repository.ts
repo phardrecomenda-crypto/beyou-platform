@@ -16,7 +16,8 @@ export class SupabasePaymentRepository implements PaymentRepository {
 
   async loadReadyContext(userId: string, method: PaymentMethod): Promise<PaymentContext | null> {
     const draftResult = await this.client.from("checkout_drafts").select("id, user_id, address_id, total_cents, installments, payment_method")
-      .eq("user_id", userId).eq("status", "READY").eq("payment_method", method).order("updated_at", { ascending:false }).limit(1).maybeSingle();
+      .eq("user_id", userId).eq("status", "READY").eq("payment_method", method)
+      .gt("expires_at", new Date().toISOString()).order("updated_at", { ascending:false }).limit(1).maybeSingle();
     if (draftResult.error) throw draftResult.error;
     const draft = draftResult.data as DraftRow | null;
     if (!draft?.total_cents) return null;
