@@ -22,6 +22,12 @@ export type CustomerAddress = Readonly<{
   updatedAt: string;
 }>;
 
+export type CheckoutCustomer = Readonly<{
+  name: string;
+  email: string;
+  phone: string | null;
+}>;
+
 export type CheckoutDraft = Readonly<{
   id: string;
   userId: string;
