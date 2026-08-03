@@ -2,60 +2,60 @@
 
 ## Status
 
-Implementado e versionado. A publicação automática aguarda disponibilidade de build da Vercel.
+Implementado, auditado e versionado.
 
 ## Arquitetura
 
 - `modules/checkout/domain`: entidades, estados, constantes e erros do carrinho.
-- `modules/checkout/application`: contratos do repositório, sessão e serviço de aplicação.
+- `modules/checkout/application`: contratos do repositório, sessão e serviço.
 - `modules/checkout/infrastructure`: repositório Supabase, sessão autenticada e fábrica.
-- `tests/checkout-backend-contract.test.mjs`: contratos automatizados do backend.
+- `app/loja/cart-actions.ts`: operações seguras consumidas pela apresentação.
+- `tests/checkout-backend-contract.test.mjs`: contratos automatizados.
 
-Nenhum componente React acessa diretamente as tabelas de carrinho.
+Nenhum componente React acessa diretamente as tabelas do carrinho.
 
 ## Operações
 
 ### getActive
 
-Retorna o carrinho ativo do usuário autenticado, incluindo itens e resumo calculado pelo banco.
+Retorna o carrinho ativo autenticado, seus itens e o resumo calculado no banco.
 
 ### getOrCreateActive
 
-Retorna o carrinho existente ou cria um novo. A constraint de um carrinho ativo por usuário resolve concorrência; em caso de disputa, o serviço recarrega o carrinho criado pela requisição vencedora.
+Retorna o carrinho existente ou cria um novo. Requisições concorrentes são resolvidas pela constraint de um carrinho ativo e pela recuperação do registro vencedor.
 
 ### addProduct
 
+- valida o produto como UUID;
 - exige sessão autenticada;
 - cria ou recupera o carrinho ativo;
-- envia apenas `cart_id`, `product_id` e quantidade fixa;
-- confia no trigger do banco para preservar nome, SKU e preço;
-- converte duplicidade e indisponibilidade em erros de domínio;
+- envia apenas carrinho, produto e quantidade fixa;
+- preserva preço, nome e SKU pelo trigger do banco;
+- trata adições repetidas como sucesso idempotente;
 - retorna o carrinho recalculado.
 
 ### removeProduct
 
+- valida o produto como UUID;
 - exige sessão autenticada;
-- remove exclusivamente do carrinho pertencente ao usuário sob RLS;
+- remove exclusivamente do carrinho do usuário sob RLS;
 - retorna o carrinho recalculado.
 
 ## Segurança
 
 - A sessão é validada com `auth.getUser()`.
-- O backend não utiliza metadados editáveis para autorização.
-- Todas as consultas usam colunas explícitas.
-- RLS permanece como barreira final contra acesso entre clientes.
-- Preços e qualificação de frete não são calculados nem aceitos do navegador.
-- A service role não é utilizada.
+- O backend nunca aceita `user_id` do navegador.
+- Identificadores são normalizados e validados.
+- Consultas usam colunas explícitas e filtros de propriedade.
+- RLS é a autoridade final contra acesso entre clientes.
+- Preços e frete não são aceitos nem calculados no navegador.
+- Nenhuma chave privilegiada é utilizada.
 - Assinaturas não fazem parte deste pacote.
 
-## Erros de domínio
+## Idempotência
 
-- `AUTHENTICATION_REQUIRED`
-- `PRODUCT_ALREADY_IN_CART`
-- `ACTIVE_CART_ALREADY_EXISTS`
-- `PRODUCT_UNAVAILABLE`
-- `ACTIVE_CART_NOT_FOUND`
+A criação simultânea de carrinhos recupera o registro vencedor. Adicionar novamente o mesmo produto mantém apenas uma unidade e retorna o carrinho atual, sem duplicar linhas.
 
 ## Próxima integração
 
-Server Actions e componentes do carrinho utilizarão exclusivamente `CartService`. A interface deverá apresentar os dados retornados por `cart_summaries`, incluindo progresso até R$ 600,00.
+A interface consumirá exclusivamente `CartService` e as Server Actions. O próximo pacote implementará drawer responsivo, barra de frete grátis, order bump e estados de carregamento e erro.
