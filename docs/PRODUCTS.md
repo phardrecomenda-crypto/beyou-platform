@@ -42,10 +42,19 @@ Componentes React não acessam diretamente a tabela `products`. Todas as operaç
 4. O repositório executa a mutação sob RLS.
 5. Catálogo, produto e administração são revalidados.
 
-## Critérios de encerramento pendentes
+## Validação da fase
 
-- Executar testes SQL no projeto Supabase oficial.
-- Adicionar testes automatizados de domínio, aplicação e Server Actions.
-- Validar criação, edição e arquivamento com usuário administrador real.
+- Catálogo oficial conferido diretamente no Supabase.
+- Leitura anônima validada sob RLS com quatro produtos ativos.
+- RLS habilitada e forçada em todas as tabelas públicas.
+- Políticas de leitura e mutação auditadas.
+- Bucket, limite de 5 MB e MIME types permitidos auditados.
+- Build de produção e testes automatizados aprovados.
+- Catálogo e página de detalhes usam entidades normalizadas do domínio.
+- Conteúdo, momento, sabor e modo de uso são derivados somente dos metadados oficiais do produto.
 
-A Fase 04 permanece em andamento até que todos os critérios acima sejam concluídos.
+## Critério operacional pendente
+
+O banco ainda não possui um perfil `SUPER_ADMIN` ou `ADMIN`. A criação, edição, arquivamento e upload pela interface administrativa permanecem corretamente bloqueados até que os Fundadores + CTO designem formalmente o primeiro administrador.
+
+A implementação técnica da Fase 04 está concluída. A habilitação operacional do painel depende exclusivamente da designação segura do primeiro administrador; nenhum usuário será promovido automaticamente.
