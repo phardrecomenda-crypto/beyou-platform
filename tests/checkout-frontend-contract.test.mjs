@@ -46,12 +46,15 @@ test("cart synchronizes refreshed server state and exposes failures", async () =
 });
 
 test("cart mutations use the authenticated HTTP endpoint", async () => {
-  const [store, route] = await Promise.all([
+  const [store, route, proxy] = await Promise.all([
     read("modules/checkout/presentation/cart-store.tsx"),
     read("app/api/cart/items/route.ts"),
+    read("lib/supabase/proxy.ts"),
   ]);
   assert.match(store, /fetch\("\/api\/cart\/items"/);
   assert.match(store, /method: "POST" \| "DELETE"/);
+  assert.match(proxy, /API_PATH_PREFIX = "\/api\/"/);
+  assert.match(proxy, /request\.nextUrl\.pathname\.startsWith\(API_PATH_PREFIX\)/);
   assert.match(route, /createServerSupabaseClient/);
   assert.match(route, /export async function POST/);
   assert.match(route, /export async function DELETE/);
