@@ -36,6 +36,10 @@ export type Order = Readonly<{
   neighborhood: string;
   city: string;
   state: string;
+  trackingCode: string | null;
+  shippingCarrier: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
   paidAt: string;
   createdAt: string;
   items: readonly OrderItem[];
