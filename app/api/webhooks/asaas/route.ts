@@ -12,6 +12,10 @@ const statusByEvent: Record<string, PaymentStatus> = {
   PAYMENT_CONFIRMED:"CONFIRMED", PAYMENT_RECEIVED:"RECEIVED", PAYMENT_OVERDUE:"EXPIRED",
   PAYMENT_REFUNDED:"REFUNDED", PAYMENT_DELETED:"CANCELLED", PAYMENT_REPROVED_BY_RISK_ANALYSIS:"FAILED",
 };
+const statusByProvider: Record<string, PaymentStatus> = {
+  PENDING:"PENDING", AUTHORIZED:"AUTHORIZED", CONFIRMED:"CONFIRMED", RECEIVED:"RECEIVED",
+  OVERDUE:"EXPIRED", REFUNDED:"REFUNDED", DELETED:"CANCELLED",
+};
 const digest = (value:string) => createHash("sha256").update(value).digest();
 
 export async function POST(request: NextRequest) {
@@ -24,7 +28,8 @@ export async function POST(request: NextRequest) {
   const inserted = await repository.recordWebhook(parsed.data);
   if (!inserted) return NextResponse.json({ received:true, duplicate:true });
   const paymentId = parsed.data.payment?.id;
-  const status = statusByEvent[parsed.data.event];
-  if (paymentId && status) await repository.updateFromWebhook(paymentId, status, parsed.data.payment?.status ?? parsed.data.event);
+  const providerStatus = parsed.data.payment?.status;
+  const status = statusByEvent[parsed.data.event] ?? (providerStatus ? statusByProvider[providerStatus] : undefined);
+  if (paymentId && status) await repository.updateFromWebhook(paymentId, status, providerStatus ?? parsed.data.event);
   return NextResponse.json({ received:true });
 }
