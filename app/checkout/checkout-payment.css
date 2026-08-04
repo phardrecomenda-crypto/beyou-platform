@@ -41,3 +41,4 @@
   .card-fields { grid-template-columns: 1fr; }
   .card-fields .wide { grid-column: auto; }
 }
+.payment-waiting{display:flex;align-items:center;gap:10px;margin:12px 0;padding:12px 15px;border-radius:12px;background:#f4eff9;color:#654b7a;font-size:12px;font-weight:750}.payment-waiting span{width:15px;height:15px;border:2px solid #d5c6e2;border-top-color:#75529b;border-radius:50%;animation:payment-spin .8s linear infinite}@keyframes payment-spin{to{transform:rotate(360deg)}}

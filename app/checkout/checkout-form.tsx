@@ -5,6 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import type { Cart } from "../../modules/checkout/domain/cart";
 import type { CheckoutCustomer, CustomerAddress } from "../../modules/checkout/domain/checkout";
 import { createCustomerAddress, saveBillingProfile, startCheckout } from "./actions";
+import { PaymentOrderWatcher } from "./payment-order-watcher";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const field = (form: FormData, name: string) => String(form.get(name) ?? "");
@@ -84,6 +85,7 @@ export function CheckoutForm({ cart, customer, addresses }: Readonly<{ cart: Car
         {error && <p className="checkout-error" role="alert">{error}</p>}
         {payment?.pixCopyPaste && <section className="payment-result" aria-live="polite"><span>Pagamento Pix gerado</span><h2>Escaneie o QR Code</h2>{payment.pixEncodedImage && <img src={`data:image/png;base64,${payment.pixEncodedImage}`} alt="QR Code Pix para pagamento" width="220" height="220" />}<label>Pix copia-e-cola<textarea value={payment.pixCopyPaste} readOnly rows={4} onFocus={(event) => event.currentTarget.select()} /></label><p>Após o pagamento, a confirmação será atualizada automaticamente.</p></section>}
         {payment && !payment.pixCopyPaste && <p className="checkout-success" role="status">Pagamento enviado com segurança. Status: {payment.status}.</p>}
+        {payment && <PaymentOrderWatcher paymentId={payment.id} />}
         <button className="checkout-submit" type="submit" disabled={busy || Boolean(payment)}><span>{busy ? "Processando pagamento..." : payment ? "Pagamento enviado" : paymentMethod === "PIX" ? "Gerar Pix" : "Pagar com cartão"}</span><b aria-hidden="true">→</b></button>
         <div className="checkout-trust"><span>✓ Dados protegidos</span><span>✓ Pagamento seguro</span><span>✓ Suporte BEYOU</span></div>
       </form>
