@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/cadastro", "/recuperar-senha", "/redefinir-senha", "/auth", "/loja"];
 const PUBLIC_EXACT_PATHS = new Set(["/api/webhooks/asaas"]);
+const API_PATH_PREFIX = "/api/";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -25,6 +26,7 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const isPublic =
     request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname.startsWith(API_PATH_PREFIX) ||
     PUBLIC_EXACT_PATHS.has(request.nextUrl.pathname) ||
     PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
 
