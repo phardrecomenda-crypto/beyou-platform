@@ -79,4 +79,12 @@ export class SupabasePaymentRepository implements PaymentRepository {
     if (error) throw error;
     await this.client.from("asaas_webhook_events").update({ processed_at:new Date().toISOString() }).eq("provider_payment_id", providerPaymentId).is("processed_at", null);
   }
+  async createOrderFromConfirmedPayment(providerPaymentId:string, correlationId:string) {
+    const { data, error } = await this.client.rpc("create_order_from_confirmed_payment", {
+      selected_provider_payment_id:providerPaymentId,
+      selected_correlation_id:correlationId,
+    });
+    if (error) throw error;
+    return typeof data === "string" ? data : null;
+  }
 }

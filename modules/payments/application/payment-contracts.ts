@@ -26,6 +26,7 @@ export interface PaymentRepository {
   saveAsaasCustomer(userId: string, providerCustomerId: string): Promise<void>;
   recordWebhook(event: AsaasWebhook): Promise<boolean>;
   updateFromWebhook(providerPaymentId: string, status: PaymentStatus, providerStatus: string): Promise<void>;
+  createOrderFromConfirmedPayment(providerPaymentId: string, correlationId: string): Promise<string | null>;
 }
 
 export type AsaasCustomerInput = Omit<PaymentContext, "checkoutDraftId" | "amountCents" | "installments" | "method">;

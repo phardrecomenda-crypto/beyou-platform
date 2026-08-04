@@ -30,6 +30,11 @@ export async function POST(request: NextRequest) {
   const paymentId = parsed.data.payment?.id;
   const providerStatus = parsed.data.payment?.status;
   const status = statusByEvent[parsed.data.event] ?? (providerStatus ? statusByProvider[providerStatus] : undefined);
-  if (paymentId && status) await repository.updateFromWebhook(paymentId, status, providerStatus ?? parsed.data.event);
+  if (paymentId && status) {
+    await repository.updateFromWebhook(paymentId, status, providerStatus ?? parsed.data.event);
+    if (status === "CONFIRMED" || status === "RECEIVED") {
+      await repository.createOrderFromConfirmedPayment(paymentId, parsed.data.id);
+    }
+  }
   return NextResponse.json({ received:true });
 }
