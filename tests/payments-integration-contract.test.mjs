@@ -13,6 +13,7 @@ test("Pix uses external reference and retrieves QR code",async()=>{const client=
 test("card data is never persisted",async()=>{const files=await Promise.all([read("modules/payments/infrastructure/supabase-payment-repository.ts"),read("app/api/payments/card/route.ts")]);assert.doesNotMatch(files[0],/creditCard|ccv|expiry|card\.number/);assert.doesNotMatch(files[1],/\.from\(|console\.log/)});
 test("webhook validates token and is idempotent",async()=>{const route=await read("app/api/webhooks/asaas/route.ts");const repository=await read("modules/payments/infrastructure/supabase-payment-repository.ts");assert.match(route,/timingSafeEqual/);assert.match(route,/asaas-access-token/);assert.match(repository,/23505/)});
 test("webhook reconciles provider status even for generic payment updates",async()=>{const route=await read("app/api/webhooks/asaas/route.ts");assert.match(route,/statusByProvider/);assert.match(route,/statusByEvent\[parsed\.data\.event\] \?\?/);assert.match(route,/CONFIRMED:"CONFIRMED"/);assert.match(route,/RECEIVED:"RECEIVED"/)});
+test("synchronous Asaas confirmation records the confirmation timestamp",async()=>{const repository=await read("modules/payments/infrastructure/supabase-payment-repository.ts");assert.match(repository,/statusByProvider\[providerStatus\]/);assert.match(repository,/\["CONFIRMED","RECEIVED"\]\.includes\(status\)/);assert.match(repository,/confirmed_at:confirmedAt/)});
 
 test("webhook bypasses session login while keeping token authentication",async()=>{
   const proxy=await read("lib/supabase/proxy.ts");

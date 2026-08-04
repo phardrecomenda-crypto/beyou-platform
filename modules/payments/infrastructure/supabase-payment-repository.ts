@@ -11,6 +11,10 @@ type BillingRow = { cpf:string };
 type AddressRow = { phone:string; postal_code:string; street:string; number:string; neighborhood:string };
 const mapAttempt = (row: AttemptRow): PaymentAttempt => ({ id:row.id, userId:row.user_id, checkoutDraftId:row.checkout_draft_id, providerPaymentId:row.provider_payment_id, status:row.status, method:row.payment_method, amountCents:row.amount_cents, installments:row.installments, pixCopyPaste:row.pix_copy_paste, pixEncodedImage:row.pix_encoded_image, pixExpiresAt:row.pix_expires_at });
 const normalizePhone = (value: string | null | undefined) => value?.replace(/\D/g, "") ?? "";
+const statusByProvider: Record<string, PaymentStatus> = {
+  PENDING:"PENDING", AUTHORIZED:"AUTHORIZED", CONFIRMED:"CONFIRMED", RECEIVED:"RECEIVED",
+  OVERDUE:"EXPIRED", REFUNDED:"REFUNDED", DELETED:"CANCELLED",
+};
 
 export class SupabasePaymentRepository implements PaymentRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -47,7 +51,9 @@ export class SupabasePaymentRepository implements PaymentRepository {
     if (error) throw error; return mapAttempt(data as AttemptRow);
   }
   async attachProvider(attemptId:string, providerPaymentId:string, providerStatus:string) {
-    const { error } = await this.client.from("payment_attempts").update({ provider_payment_id:providerPaymentId, provider_status:providerStatus, status:providerStatus === "CONFIRMED" ? "CONFIRMED" : "PENDING", updated_at:new Date().toISOString() }).eq("id", attemptId);
+    const status = statusByProvider[providerStatus] ?? "PENDING";
+    const confirmedAt = ["CONFIRMED","RECEIVED"].includes(status) ? new Date().toISOString() : null;
+    const { error } = await this.client.from("payment_attempts").update({ provider_payment_id:providerPaymentId, provider_status:providerStatus, status, confirmed_at:confirmedAt, updated_at:new Date().toISOString() }).eq("id", attemptId);
     if (error) throw error;
   }
   async attachPix(attemptId:string, copyPaste:string, encodedImage:string, expiresAt:string) {
