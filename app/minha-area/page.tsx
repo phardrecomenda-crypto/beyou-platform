@@ -52,6 +52,10 @@ export default function CustomerAreaPage() {
       router.push("/loja");
       return;
     }
+    if (section === "Meus pedidos") {
+      router.push("/pedidos");
+      return;
+    }
     if (section !== "Visão geral") setNotice(`${section} será conectada ao Supabase no próximo pacote.`);
   }
 
@@ -129,4 +133,3 @@ export default function CustomerAreaPage() {
     </main>
   );
 }
-
