@@ -69,6 +69,10 @@ export class AsaasClient implements PaymentGateway {
     return this.request<AsaasPix>(`/payments/${encodeURIComponent(paymentId)}/pixQrCode`);
   }
 
+  getPayment(paymentId: string) {
+    return this.request<AsaasPayment>(`/payments/${encodeURIComponent(paymentId)}`);
+  }
+
   createCard(customerId: string, attemptId: string, context: PaymentContext, card: CardInput, remoteIp: string) {
     const installment = context.installments > 1
       ? { installmentCount: context.installments, totalValue: context.amountCents / 100 }

@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { PaymentGateway, PaymentRepository } from "./payment-contracts";
-import { PaymentError, type CardInput, type PaymentAttempt, type PaymentMethod } from "../domain/payment";
+import { PaymentError, type CardInput, type PaymentAttempt, type PaymentMethod, type PaymentStatus } from "../domain/payment";
+
+const statusByProvider: Record<string, PaymentStatus> = {
+  PENDING:"PENDING", AUTHORIZED:"AUTHORIZED", CONFIRMED:"CONFIRMED", RECEIVED:"RECEIVED",
+  OVERDUE:"EXPIRED", REFUNDED:"REFUNDED", DELETED:"CANCELLED",
+};
 
 const cardSchema = z.object({
   holderName: z.string().trim().min(2).max(120),
@@ -35,9 +40,16 @@ export class PaymentService {
     return { context, open };
   }
 
+  private async reconcile(attempt: PaymentAttempt) {
+    if (!attempt.providerPaymentId) return attempt;
+    const payment = await this.gateway.getPayment(attempt.providerPaymentId);
+    await this.repository.attachProvider(attempt.id, payment.id, payment.status);
+    return { ...attempt, providerPaymentId:payment.id, status:statusByProvider[payment.status] ?? "PENDING" };
+  }
+
   async createPix(userId: string): Promise<PaymentAttempt> {
     const { context, open } = await this.prepare(userId, "PIX");
-    if (open?.pixCopyPaste) return open;
+    if (open?.pixCopyPaste) return this.reconcile(open);
     const attempt = open ?? await this.repository.createAttempt(context);
     console.info("[payments] payment attempt ready", { method: "PIX" });
     const customerId = await this.customer(context);
@@ -51,7 +63,7 @@ export class PaymentService {
     const parsed = cardSchema.safeParse(input);
     if (!parsed.success || !remoteIp) throw new PaymentError("CARD_INVALID");
     const { context, open } = await this.prepare(userId, "CREDIT_CARD");
-    if (open?.providerPaymentId) return open;
+    if (open?.providerPaymentId) return this.reconcile(open);
     const attempt = open ?? await this.repository.createAttempt(context);
     const customerId = await this.customer(context);
     const payment = await this.gateway.createCard(customerId, attempt.id, context, parsed.data, remoteIp);

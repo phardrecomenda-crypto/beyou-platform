@@ -38,5 +38,6 @@ export interface PaymentGateway {
   createCustomer(input: AsaasCustomerInput): Promise<string>;
   createPix(customerId: string, attemptId: string, amountCents: number): Promise<AsaasPayment>;
   getPix(paymentId: string): Promise<AsaasPix>;
+  getPayment(paymentId: string): Promise<AsaasPayment>;
   createCard(customerId: string, attemptId: string, context: PaymentContext, card: CardInput, remoteIp: string): Promise<AsaasPayment>;
 }
