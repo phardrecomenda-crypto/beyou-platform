@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ payment });
   } catch (error) {
     const code = error instanceof PaymentError ? error.code : "PAYMENT_PROVIDER_ERROR";
-    const status = code === "CARD_INVALID" ? 400 : code === "PAYMENT_CONFIGURATION_MISSING" ? 503 : code === "CHECKOUT_NOT_READY" ? 409 : 502;
+    const status = code === "CARD_INVALID" ? 400 : code === "PHONE_REQUIRED" ? 422 : code === "PAYMENT_CONFIGURATION_MISSING" ? 503 : code === "CHECKOUT_NOT_READY" ? 409 : 502;
     return NextResponse.json({ code }, { status });
   }
 }

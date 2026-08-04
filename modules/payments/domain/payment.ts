@@ -24,7 +24,7 @@ export type CardInput = Readonly<{
 }>;
 
 export class PaymentError extends Error {
-  constructor(public readonly code: "AUTHENTICATION_REQUIRED" | "CHECKOUT_NOT_READY" | "BILLING_PROFILE_REQUIRED" | "PAYMENT_CONFIGURATION_MISSING" | "PAYMENT_PROVIDER_ERROR" | "CARD_INVALID") {
+  constructor(public readonly code: "AUTHENTICATION_REQUIRED" | "CHECKOUT_NOT_READY" | "BILLING_PROFILE_REQUIRED" | "PHONE_REQUIRED" | "PAYMENT_CONFIGURATION_MISSING" | "PAYMENT_PROVIDER_ERROR" | "CARD_INVALID") {
     super(code);
     this.name = "PaymentError";
   }

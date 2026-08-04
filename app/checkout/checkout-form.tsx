@@ -56,7 +56,7 @@ export function CheckoutForm({ cart, customer, addresses }: Readonly<{ cart: Car
         setPayment(result);
       } catch (paymentError) {
         const code = paymentError instanceof Error ? paymentError.message : "PAYMENT_PROVIDER_ERROR";
-        const messages: Record<string, string> = { CARD_INVALID: "Revise os dados do cartão.", CHECKOUT_NOT_READY: "O checkout expirou. Revise os dados e tente novamente.", PAYMENT_CONFIGURATION_MISSING: "O ambiente de pagamento ainda não está configurado.", PAYMENT_PROVIDER_ERROR: "O pagamento não pôde ser processado. Tente novamente." };
+        const messages: Record<string, string> = { CARD_INVALID: "Revise os dados do cartão.", PHONE_REQUIRED: "Informe um telefone com DDD no endereço de entrega.", CHECKOUT_NOT_READY: "O checkout expirou. Revise os dados e tente novamente.", PAYMENT_CONFIGURATION_MISSING: "O ambiente de pagamento ainda não está configurado.", PAYMENT_PROVIDER_ERROR: "O pagamento não pôde ser processado. Tente novamente." };
         setError(messages[code] ?? messages.PAYMENT_PROVIDER_ERROR);
       }
     });

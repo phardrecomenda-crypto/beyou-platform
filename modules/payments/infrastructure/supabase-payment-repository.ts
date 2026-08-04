@@ -8,8 +8,9 @@ type AttemptRow = { id:string; user_id:string; checkout_draft_id:string; provide
 type DraftRow = { id:string; user_id:string; address_id:string; total_cents:number|null; installments:number; payment_method:PaymentMethod };
 type ProfileRow = { name:string; email:string; phone:string|null };
 type BillingRow = { cpf:string };
-type AddressRow = { postal_code:string; street:string; number:string; neighborhood:string };
+type AddressRow = { phone:string; postal_code:string; street:string; number:string; neighborhood:string };
 const mapAttempt = (row: AttemptRow): PaymentAttempt => ({ id:row.id, userId:row.user_id, checkoutDraftId:row.checkout_draft_id, providerPaymentId:row.provider_payment_id, status:row.status, method:row.payment_method, amountCents:row.amount_cents, installments:row.installments, pixCopyPaste:row.pix_copy_paste, pixEncodedImage:row.pix_encoded_image, pixExpiresAt:row.pix_expires_at });
+const normalizePhone = (value: string | null | undefined) => value?.replace(/\D/g, "") ?? "";
 
 export class SupabasePaymentRepository implements PaymentRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -24,14 +25,16 @@ export class SupabasePaymentRepository implements PaymentRepository {
     const [profileResult, billingResult, addressResult] = await Promise.all([
       this.client.from("profiles").select("name, email, phone").eq("user_id", userId).single(),
       this.client.from("billing_profiles").select("cpf").eq("user_id", userId).single(),
-      this.client.from("customer_addresses").select("postal_code, street, number, neighborhood").eq("id", draft.address_id).eq("user_id", userId).single(),
+      this.client.from("customer_addresses").select("phone, postal_code, street, number, neighborhood").eq("id", draft.address_id).eq("user_id", userId).single(),
     ]);
     if (billingResult.error?.code === "PGRST116") return null;
     if (profileResult.error) throw profileResult.error;
     if (billingResult.error) throw billingResult.error;
     if (addressResult.error) throw addressResult.error;
     const profile=profileResult.data as ProfileRow, billing=billingResult.data as BillingRow, address=addressResult.data as AddressRow;
-    return { userId, checkoutDraftId:draft.id, name:profile.name, email:profile.email, phone:profile.phone, cpf:billing.cpf, postalCode:address.postal_code, address:address.street, addressNumber:address.number, province:address.neighborhood, amountCents:draft.total_cents, installments:draft.installments, method:draft.payment_method };
+    const profilePhone = normalizePhone(profile.phone);
+    const addressPhone = normalizePhone(address.phone);
+    return { userId, checkoutDraftId:draft.id, name:profile.name, email:profile.email, phone:profilePhone || addressPhone || null, cpf:billing.cpf, postalCode:address.postal_code, address:address.street, addressNumber:address.number, province:address.neighborhood, amountCents:draft.total_cents, installments:draft.installments, method:draft.payment_method };
   }
 
   async findOpenAttempt(checkoutDraftId: string, method: PaymentMethod) {

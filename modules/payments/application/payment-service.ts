@@ -27,6 +27,9 @@ export class PaymentService {
     const context = await this.repository.loadReadyContext(userId, method);
     console.info("[payments] checkout context loaded", { method, ready: Boolean(context) });
     if (!context) throw new PaymentError("CHECKOUT_NOT_READY");
+    if (method === "CREDIT_CARD" && !/^\d{10,11}$/.test(context.phone ?? "")) {
+      throw new PaymentError("PHONE_REQUIRED");
+    }
     const open = await this.repository.findOpenAttempt(context.checkoutDraftId, method);
     console.info("[payments] open attempt checked", { method, found: Boolean(open) });
     return { context, open };
