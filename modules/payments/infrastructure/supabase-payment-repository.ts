@@ -42,7 +42,7 @@ export class SupabasePaymentRepository implements PaymentRepository {
   }
 
   async findOpenAttempt(checkoutDraftId: string, method: PaymentMethod) {
-    const { data, error } = await this.client.from("payment_attempts").select(attemptFields).eq("checkout_draft_id", checkoutDraftId).eq("payment_method", method).in("status", ["CREATED","PENDING","AUTHORIZED","CONFIRMED","RECEIVED"]).order("created_at", { ascending:false }).limit(1).maybeSingle();
+    const { data, error } = await this.client.from("payment_attempts").select(attemptFields).eq("checkout_draft_id", checkoutDraftId).eq("payment_method", method).in("status", ["CREATED","PENDING","AUTHORIZED"]).order("created_at", { ascending:false }).limit(1).maybeSingle();
     if (error) throw error;
     return data ? mapAttempt(data as AttemptRow) : null;
   }
