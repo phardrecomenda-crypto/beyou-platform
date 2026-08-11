@@ -1,5 +1,6 @@
 export type AffiliateFocus = "affiliate" | "manager" | "recruiter";
 export type AttributionType = "DIRECT" | "REMARKETING";
+export type AffiliateApplicationStatus = "pending" | "approved" | "rejected";
 export type CommissionStatus = "calculated" | "pending" | "released" | "paid" | "cancelled" | "reversed";
 
 export type AffiliateProfile = Readonly<{
@@ -16,6 +17,23 @@ export type AffiliateLink = Readonly<{
   campaign: string | null;
   active: boolean;
   createdAt: string;
+}>;
+
+export type AffiliateApplication = Readonly<{
+  id: string;
+  userId: string;
+  status: AffiliateApplicationStatus;
+  notes: string | null;
+  reviewNotes: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+}>;
+
+export type AffiliateApplicationReview = Readonly<{
+  status: "approved" | "rejected";
+  applicationId: string;
+  affiliateUserId?: string;
+  affiliateCode?: string;
 }>;
 
 export type AffiliateCommission = Readonly<{
@@ -52,7 +70,12 @@ export type AffiliateErrorCode =
   | "AFFILIATE_NOT_ACTIVE"
   | "LINK_INVALID"
   | "CODE_UNAVAILABLE"
-  | "ORDER_INVALID";
+  | "ORDER_INVALID"
+  | "APPLICATION_INVALID"
+  | "APPLICATION_EXISTS"
+  | "APPLICATION_NOT_FOUND"
+  | "APPLICATION_ALREADY_REVIEWED"
+  | "ADMIN_REQUIRED";
 
 export class AffiliateError extends Error {
   constructor(readonly code: AffiliateErrorCode) {
@@ -60,4 +83,3 @@ export class AffiliateError extends Error {
     this.name = "AffiliateError";
   }
 }
-

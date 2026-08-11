@@ -26,8 +26,26 @@ test("commission engine is private, idempotent and distinguishes remarketing",as
 });
 
 test("affiliate link input is normalized and restricted to internal destinations",async()=>{
-  const service=await read("modules/affiliates/application/affiliate-service.ts");
+  const [service,repository]=await Promise.all([
+    read("modules/affiliates/application/affiliate-service.ts"),
+    read("modules/affiliates/infrastructure/supabase-affiliate-repository.ts"),
+  ]);
   assert.match(service,/toLowerCase/);assert.match(service,/regex\(\/\^\\\//);
-  assert.match(service,/CODE_UNAVAILABLE/);
+  assert.match(repository,/CODE_UNAVAILABLE/);
 });
 
+test("affiliate applications require identity and admin review",async()=>{
+  const [service,repository,migration]=await Promise.all([
+    read("modules/affiliates/application/affiliate-service.ts"),
+    read("modules/affiliates/infrastructure/supabase-affiliate-repository.ts"),
+    read("supabase/migrations/20260811182508_affiliate_application_workflow.sql"),
+  ]);
+  assert.match(service,/APPLICATION_EXISTS/);
+  assert.match(service,/isAdministrator/);
+  assert.match(repository,/requested_role:"affiliate"/);
+  assert.match(repository,/review_affiliate_application/);
+  assert.match(migration,/security definer/);
+  assert.match(migration,/ADMIN_REQUIRED/);
+  assert.match(migration,/grant execute[\s\S]*to service_role/);
+  assert.doesNotMatch(migration,/grant execute[\s\S]*to authenticated/);
+});

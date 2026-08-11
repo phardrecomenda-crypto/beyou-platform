@@ -8,6 +8,14 @@ const linkSchema = z.object({
   campaign: z.string().trim().min(1).max(80).nullable().optional(),
 });
 const uuidSchema = z.string().uuid();
+const applicationSchema = z.object({
+  notes: z.string().trim().min(20).max(1000),
+});
+const reviewSchema = z.object({
+  applicationId: z.string().uuid(),
+  decision: z.enum(["approved", "rejected"]),
+  reviewNotes: z.string().trim().max(1000).nullable().optional(),
+});
 
 const normalizeCode = (value: string) => value
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -45,6 +53,42 @@ export class AffiliateService {
       userId, code, parsed.data.destinationPath, parsed.data.campaign ?? null,
     );
   }
+
+  async application() {
+    const userId = await this.session.currentUserId();
+    if (!userId) throw new AffiliateError("AUTHENTICATION_REQUIRED");
+    return this.repository.findApplication(userId);
+  }
+
+  async submitApplication(input: unknown) {
+    const parsed = applicationSchema.safeParse(input);
+    if (!parsed.success) throw new AffiliateError("APPLICATION_INVALID");
+    const userId = await this.session.currentUserId();
+    if (!userId) throw new AffiliateError("AUTHENTICATION_REQUIRED");
+    if (await this.repository.findApplication(userId)) throw new AffiliateError("APPLICATION_EXISTS");
+    return this.repository.submitApplication(userId, parsed.data.notes);
+  }
+
+  async pendingApplications() {
+    const userId = await this.session.currentUserId();
+    if (!userId) throw new AffiliateError("AUTHENTICATION_REQUIRED");
+    if (!await this.repository.isAdministrator(userId)) throw new AffiliateError("ADMIN_REQUIRED");
+    return this.repository.listPendingApplications();
+  }
+
+  async reviewApplication(input: unknown) {
+    const parsed = reviewSchema.safeParse(input);
+    if (!parsed.success) throw new AffiliateError("APPLICATION_INVALID");
+    const userId = await this.session.currentUserId();
+    if (!userId) throw new AffiliateError("AUTHENTICATION_REQUIRED");
+    if (!await this.repository.isAdministrator(userId)) throw new AffiliateError("ADMIN_REQUIRED");
+    return this.repository.reviewApplication(
+      parsed.data.applicationId,
+      userId,
+      parsed.data.decision,
+      parsed.data.reviewNotes ?? null,
+    );
+  }
 }
 
 export class CommissionService {
@@ -55,4 +99,3 @@ export class CommissionService {
     return this.repository.processPaidOrder(orderId);
   }
 }
-
