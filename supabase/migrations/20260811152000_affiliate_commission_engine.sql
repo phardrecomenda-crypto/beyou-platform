@@ -136,7 +136,7 @@ begin
           beneficiary_type, metadata
         ) values (
           network_entry.owner_user_id, p_order_id, attribution.affiliate_user_id,
-          network_entry.relationship_type || '_n' || network_entry.level::text,
+          network_entry.relationship_type || '_' || network_entry.level::text,
           selected_rule.percentage, base_amount,
           round(base_amount * selected_rule.percentage / 100, 2), 'pending',
           selected_rule.id, attribution.id,
