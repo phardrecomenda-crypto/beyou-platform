@@ -66,7 +66,13 @@ export class SupabaseAffiliateRepository implements AffiliateRepository {
   }
   async listPendingApplications(){
     const {data,error}=await this.adminClient.from("affiliate_applications").select(applicationFields).eq("status","pending").order("created_at");
-    if(error) throw error; return (data??[]).map(row=>mapApplication(row as ApplicationRow));
+    if(error) throw error;
+    const applications=(data??[]).map(row=>mapApplication(row as ApplicationRow));
+    if(!applications.length) return applications;
+    const {data:profiles,error:profilesError}=await this.adminClient.from("profiles").select("id, full_name").in("id",applications.map(item=>item.userId));
+    if(profilesError) throw profilesError;
+    const names=new Map((profiles??[]).map(row=>[row.id as string,row.full_name as string]));
+    return applications.map(item=>({...item,applicantName:names.get(item.userId)??"Cliente BEYOU"}));
   }
   async reviewApplication(applicationId:string,reviewerId:string,decision:"approved"|"rejected",reviewNotes:string|null):Promise<AffiliateApplicationReview>{
     const {data,error}=await this.adminClient.rpc("review_affiliate_application",{p_application_id:applicationId,p_reviewer_id:reviewerId,p_decision:decision,p_review_notes:reviewNotes});

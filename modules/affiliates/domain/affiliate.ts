@@ -27,6 +27,7 @@ export type AffiliateApplication = Readonly<{
   reviewNotes: string | null;
   reviewedAt: string | null;
   createdAt: string;
+  applicantName?: string;
 }>;
 
 export type AffiliateApplicationReview = Readonly<{
