@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { createAdminSupabaseClient } from "../../../../lib/supabase/admin";
+import { createCommissionService } from "../../../../modules/affiliates/infrastructure/affiliate-factory";
 import { SupabasePaymentRepository } from "../../../../modules/payments/infrastructure/supabase-payment-repository";
 import type { PaymentStatus } from "../../../../modules/payments/domain/payment";
 
@@ -24,7 +25,8 @@ export async function POST(request: NextRequest) {
   if (!expected || !timingSafeEqual(digest(received), digest(expected))) return NextResponse.json({ code:"UNAUTHORIZED" }, { status:401 });
   const parsed = eventSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ code:"INVALID_EVENT" }, { status:400 });
-  const repository = new SupabasePaymentRepository(createAdminSupabaseClient());
+  const adminClient = createAdminSupabaseClient();
+  const repository = new SupabasePaymentRepository(adminClient);
   const inserted = await repository.recordWebhook(parsed.data);
   if (!inserted) return NextResponse.json({ received:true, duplicate:true });
   const paymentId = parsed.data.payment?.id;
@@ -33,8 +35,10 @@ export async function POST(request: NextRequest) {
   if (paymentId && status) {
     await repository.updateFromWebhook(paymentId, status, providerStatus ?? parsed.data.event);
     if (status === "CONFIRMED" || status === "RECEIVED") {
-      await repository.createOrderFromConfirmedPayment(paymentId, parsed.data.id);
+      const orderId = await repository.createOrderFromConfirmedPayment(paymentId, parsed.data.id);
+      if (orderId) await createCommissionService(adminClient).processConfirmedOrder(orderId);
     }
   }
   return NextResponse.json({ received:true });
 }
+
