@@ -7,3 +7,7 @@ The Wallet is an immutable financial ledger derived from affiliate commissions. 
 - Pix keys are encrypted at rest and only a masked value is readable by the affiliate.
 - Paid or rejected payouts create compensating entries; ledger rows are never edited.
 - No release deadline or minimum payout is assumed until the commercial policy is approved.
+
+## Financial administration
+
+The /admin/financeiro route lists pending commissions, payout requests and processed payout history. Every read and mutation revalidates the authenticated user as an administrator. The full Pix destination is decrypted only in the server-side administrative flow; affiliates see only its masked form.
