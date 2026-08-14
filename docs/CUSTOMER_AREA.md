@@ -9,3 +9,12 @@ The first Customer Area package replaces demonstration values with authenticated
 - First access, term acceptance, anamnesis, protocol and check-ins remain explicit next modules.
 
 This package is a composition layer: it does not write to Orders or access private payment tables.
+
+## First access
+
+- Only customers with an approved order can enter first access.
+- The active term is versioned and its exact body is stored in `legal_documents`.
+- Acceptance records customer, document, date and limited technical context.
+- RLS allows customers to read only their own onboarding and acceptance history.
+- The `accept_customer_terms` operation is idempotent and validates the active document server-side.
+- Anamnesis entry remains blocked until acceptance. The clinical questionnaire itself is the next package and is not simulated here.
