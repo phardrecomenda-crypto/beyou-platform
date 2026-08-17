@@ -10,13 +10,13 @@ import type {
   StartCheckoutInput,
 } from "../domain/checkout";
 
-const addressFields = "id, user_id, label, recipient_name, phone, postal_code, street, number, complement, neighborhood, city, state, is_default, created_at, updated_at";
+const addressFields = "id, user_id, label, postal_code, street, address_number, complement, province, city, state, is_default, created_at, updated_at";
 const draftFields = "id, user_id, cart_id, address_id, status, payment_method, installments, currency, subtotal_cents, pix_discount_cents, shipping_cents, total_cents, expires_at, created_at, updated_at";
 
 type AddressRow = {
-  id: string; user_id: string; label: string; recipient_name: string;
-  phone: string; postal_code: string; street: string; number: string;
-  complement: string | null; neighborhood: string; city: string; state: string;
+  id: string; user_id: string; label: string;
+  postal_code: string; street: string; address_number: string;
+  complement: string | null; province: string; city: string; state: string;
   is_default: boolean; created_at: string; updated_at: string;
 };
 type DraftRow = {
@@ -27,12 +27,12 @@ type DraftRow = {
   expires_at: string; created_at: string; updated_at: string;
 };
 type CartSummaryRow = { cart_id: string; item_count: number };
-type ProfileRow = { name: string; email: string; phone: string | null };
+type ProfileRow = { full_name: string | null; phone: string | null };
 
-const mapAddress = (row: AddressRow): CustomerAddress => ({
-  id: row.id, userId: row.user_id, label: row.label, recipientName: row.recipient_name,
-  phone: row.phone, postalCode: row.postal_code, street: row.street, number: row.number,
-  complement: row.complement, neighborhood: row.neighborhood, city: row.city, state: row.state,
+const mapAddress = (row: AddressRow, customer: CheckoutCustomer): CustomerAddress => ({
+  id: row.id, userId: row.user_id, label: row.label, recipientName: customer.name,
+  phone: customer.phone ?? "", postalCode: row.postal_code, street: row.street, number: row.address_number,
+  complement: row.complement, neighborhood: row.province, city: row.city, state: row.state,
   isDefault: row.is_default, createdAt: row.created_at, updatedAt: row.updated_at,
 });
 const mapDraft = (row: DraftRow): CheckoutDraft => ({
@@ -57,18 +57,26 @@ export class SupabaseCheckoutRepository implements CheckoutRepository {
   constructor(private readonly client: SupabaseClient) {}
 
   async findCustomer(userId: string): Promise<CheckoutCustomer | null> {
-    const { data, error } = await this.client.from("profiles")
-      .select("name, email, phone").eq("user_id", userId).maybeSingle();
+    const [{ data, error }, authResult] = await Promise.all([
+      this.client.from("profiles").select("full_name, phone").eq("id", userId).maybeSingle(),
+      this.client.auth.getUser(),
+    ]);
     if (error) throw error;
     const row = data as ProfileRow | null;
-    return row ? { name: row.name, email: row.email, phone: row.phone } : null;
+    if (!row || authResult.error || authResult.data.user?.id !== userId) return null;
+    return { name: row.full_name?.trim() || "Cliente", email: authResult.data.user.email ?? "", phone: row.phone };
   }
 
   async listAddresses(userId: string) {
-    const { data, error } = await this.client.from("customer_addresses").select(addressFields)
-      .eq("user_id", userId).order("is_default", { ascending: false }).order("created_at");
+    const [customer, result] = await Promise.all([
+      this.findCustomer(userId),
+      this.client.from("customer_addresses").select(addressFields)
+        .eq("user_id", userId).order("is_default", { ascending: false }).order("created_at"),
+    ]);
+    const { data, error } = result;
     if (error) throw error;
-    return ((data ?? []) as AddressRow[]).map(mapAddress);
+    if (!customer) return [];
+    return ((data ?? []) as AddressRow[]).map((row) => mapAddress(row, customer));
   }
 
   async createAddress(userId: string, input: CreateAddressInput) {
@@ -78,20 +86,32 @@ export class SupabaseCheckoutRepository implements CheckoutRepository {
       if (unsetError) throw unsetError;
     }
     const { data, error } = await this.client.from("customer_addresses").insert({
-      label: input.label, recipient_name: input.recipientName, phone: input.phone,
-      postal_code: input.postalCode, street: input.street, number: input.number,
-      complement: input.complement ?? null, neighborhood: input.neighborhood,
+      label: input.label, postal_code: input.postalCode, street: input.street,
+      address_number: input.number, complement: input.complement ?? null, province: input.neighborhood,
       city: input.city, state: input.state, is_default: input.isDefault ?? false,
     }).select(addressFields).single();
     if (error) throw error;
-    return mapAddress(data as AddressRow);
+    const { error: profileError } = await this.client.from("profiles").update({
+      full_name: input.recipientName,
+      phone: input.phone.replace(/\D/g, ""),
+    }).eq("id", userId);
+    if (profileError) throw profileError;
+    return mapAddress(data as AddressRow, {
+      name: input.recipientName,
+      email: "",
+      phone: input.phone,
+    });
   }
 
   async findAddressById(userId: string, addressId: string) {
-    const { data, error } = await this.client.from("customer_addresses").select(addressFields)
-      .eq("id", addressId).eq("user_id", userId).maybeSingle();
+    const [customer, result] = await Promise.all([
+      this.findCustomer(userId),
+      this.client.from("customer_addresses").select(addressFields)
+        .eq("id", addressId).eq("user_id", userId).maybeSingle(),
+    ]);
+    const { data, error } = result;
     if (error) throw error;
-    return data ? mapAddress(data as AddressRow) : null;
+    return data && customer ? mapAddress(data as AddressRow, customer) : null;
   }
 
   async findActiveCart(userId: string) {

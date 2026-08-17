@@ -6,14 +6,16 @@ const orderFields = "id, order_number, status, payment_method, installments, sub
 const itemFields = "id, order_id, product_id, product_name, product_sku, unit_price_cents, quantity, line_total_cents";
 const historyFields = "id, order_id, from_status, to_status, created_at";
 
-type OrderRow = { id:string; order_number:number; status:OrderStatus; payment_method:"PIX"|"CREDIT_CARD"; installments:number; subtotal_cents:number; discount_cents:number; shipping_cents:number; total_cents:number; recipient_name:string; recipient_phone:string; postal_code:string; street:string; address_number:string; address_complement:string|null; neighborhood:string; city:string; state:string; tracking_code:string|null; shipping_carrier:string|null; shipped_at:string|null; delivered_at:string|null; paid_at:string; created_at:string };
+type OrderRow = { id:string; order_number:number; status:string; payment_method:string; installments:number; subtotal_cents:number; discount_cents:number; shipping_cents:number; total_cents:number; recipient_name:string; recipient_phone:string; postal_code:string; street:string; address_number:string; address_complement:string|null; neighborhood:string; city:string; state:string; tracking_code:string|null; shipping_carrier:string|null; shipped_at:string|null; delivered_at:string|null; paid_at:string; created_at:string };
 type ItemRow = { id:string; order_id:string; product_id:string; product_name:string; product_sku:string; unit_price_cents:number; quantity:number; line_total_cents:number };
-type HistoryRow = { id:string; order_id:string; from_status:OrderStatus|null; to_status:OrderStatus; created_at:string };
+type HistoryRow = { id:string; order_id:string; from_status:string|null; to_status:string; created_at:string };
+
+const mapStatus = (status: string): OrderStatus => status.toUpperCase() as OrderStatus;
 
 const mapItem = (row: ItemRow): OrderItem => ({ id:row.id, productId:row.product_id, productName:row.product_name, productSku:row.product_sku, unitPriceCents:row.unit_price_cents, quantity:row.quantity, lineTotalCents:row.line_total_cents });
-const mapHistory = (row: HistoryRow): OrderHistoryEntry => ({ id:row.id, fromStatus:row.from_status, toStatus:row.to_status, createdAt:row.created_at });
+const mapHistory = (row: HistoryRow): OrderHistoryEntry => ({ id:row.id, fromStatus:row.from_status ? mapStatus(row.from_status) : null, toStatus:mapStatus(row.to_status), createdAt:row.created_at });
 const mapOrder = (row: OrderRow, items: readonly ItemRow[], history: readonly HistoryRow[]): Order => ({
-  id:row.id, orderNumber:row.order_number, status:row.status, paymentMethod:row.payment_method,
+  id:row.id, orderNumber:row.order_number, status:mapStatus(row.status), paymentMethod:row.payment_method.toUpperCase() as "PIX"|"CREDIT_CARD",
   installments:row.installments, subtotalCents:row.subtotal_cents, discountCents:row.discount_cents,
   shippingCents:row.shipping_cents, totalCents:row.total_cents, recipientName:row.recipient_name,
   recipientPhone:row.recipient_phone, postalCode:row.postal_code, street:row.street,

@@ -6,9 +6,9 @@ import type { PaymentAttempt, PaymentMethod, PaymentStatus } from "../domain/pay
 const attemptFields = "id, user_id, checkout_draft_id, provider_payment_id, status, payment_method, amount_cents, installments, pix_copy_paste, pix_encoded_image, pix_expires_at";
 type AttemptRow = { id:string; user_id:string; checkout_draft_id:string; provider_payment_id:string|null; status:PaymentStatus; payment_method:PaymentMethod; amount_cents:number; installments:number; pix_copy_paste:string|null; pix_encoded_image:string|null; pix_expires_at:string|null };
 type DraftRow = { id:string; user_id:string; address_id:string; total_cents:number|null; installments:number; payment_method:PaymentMethod };
-type ProfileRow = { name:string; email:string; phone:string|null };
+type ProfileRow = { full_name:string|null; phone:string|null };
 type BillingRow = { cpf:string };
-type AddressRow = { phone:string; postal_code:string; street:string; number:string; neighborhood:string };
+type AddressRow = { postal_code:string; street:string; address_number:string; province:string };
 const mapAttempt = (row: AttemptRow): PaymentAttempt => ({ id:row.id, userId:row.user_id, checkoutDraftId:row.checkout_draft_id, providerPaymentId:row.provider_payment_id, status:row.status, method:row.payment_method, amountCents:row.amount_cents, installments:row.installments, pixCopyPaste:row.pix_copy_paste, pixEncodedImage:row.pix_encoded_image, pixExpiresAt:row.pix_expires_at });
 const normalizePhone = (value: string | null | undefined) => value?.replace(/\D/g, "") ?? "";
 const statusByProvider: Record<string, PaymentStatus> = {
@@ -26,19 +26,20 @@ export class SupabasePaymentRepository implements PaymentRepository {
     if (draftResult.error) throw draftResult.error;
     const draft = draftResult.data as DraftRow | null;
     if (!draft?.total_cents) return null;
-    const [profileResult, billingResult, addressResult] = await Promise.all([
-      this.client.from("profiles").select("name, email, phone").eq("user_id", userId).single(),
+    const [profileResult, authResult, billingResult, addressResult] = await Promise.all([
+      this.client.from("profiles").select("full_name, phone").eq("id", userId).single(),
+      this.client.auth.admin.getUserById(userId),
       this.client.from("billing_profiles").select("cpf").eq("user_id", userId).single(),
-      this.client.from("customer_addresses").select("phone, postal_code, street, number, neighborhood").eq("id", draft.address_id).eq("user_id", userId).single(),
+      this.client.from("customer_addresses").select("postal_code, street, address_number, province").eq("id", draft.address_id).eq("user_id", userId).single(),
     ]);
     if (billingResult.error?.code === "PGRST116") return null;
     if (profileResult.error) throw profileResult.error;
+    if (authResult.error) throw authResult.error;
     if (billingResult.error) throw billingResult.error;
     if (addressResult.error) throw addressResult.error;
     const profile=profileResult.data as ProfileRow, billing=billingResult.data as BillingRow, address=addressResult.data as AddressRow;
     const profilePhone = normalizePhone(profile.phone);
-    const addressPhone = normalizePhone(address.phone);
-    return { userId, checkoutDraftId:draft.id, name:profile.name, email:profile.email, phone:profilePhone || addressPhone || null, cpf:billing.cpf, postalCode:address.postal_code, address:address.street, addressNumber:address.number, province:address.neighborhood, amountCents:draft.total_cents, installments:draft.installments, method:draft.payment_method };
+    return { userId, checkoutDraftId:draft.id, name:profile.full_name?.trim() || "Cliente", email:authResult.data.user.email ?? "", phone:profilePhone || null, cpf:billing.cpf, postalCode:address.postal_code, address:address.street, addressNumber:address.address_number, province:address.province, amountCents:draft.total_cents, installments:draft.installments, method:draft.payment_method };
   }
 
   async findOpenAttempt(checkoutDraftId: string, method: PaymentMethod) {
