@@ -18,3 +18,14 @@ This package is a composition layer: it does not write to Orders or access priva
 - RLS allows customers to read only their own onboarding and acceptance history.
 - The `accept_customer_terms` operation is idempotent and validates the active document server-side.
 - Anamnesis entry remains blocked until acceptance. The clinical questionnaire itself is the next package and is not simulated here.
+
+## Anamnesis
+
+- Five progressive sections cover the minimum approved business-rule groups: objective and measurements, routine, physical activity, food restrictions/preferences, and health history.
+- Every step is validated in the application and constrained again in PostgreSQL.
+- One draft per customer is saved progressively and can be resumed.
+- Health data is readable only by its owner under forced RLS and is never exposed to affiliates.
+- Completion requires explicit sensitive-health-data consent (`health-data-v1`) and every required answer.
+- Completed assessments are immutable to the customer and versioned for future cycles.
+- A successful completion updates onboarding and writes one idempotent `assessment.completed` domain event.
+- No AI plan is generated in this package. The future generation must reference the completed assessment ID and cannot diagnose or prescribe.
