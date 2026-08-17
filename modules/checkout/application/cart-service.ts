@@ -7,7 +7,7 @@ import {
 import type { CartRepository, CartSession } from "./cart-repository";
 
 type DatabaseError = Readonly<{ code?: unknown; message?: unknown }>;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PRODUCT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/i;
 
 function databaseError(error: unknown): DatabaseError {
   return typeof error === "object" && error !== null ? error as DatabaseError : {};
@@ -15,7 +15,7 @@ function databaseError(error: unknown): DatabaseError {
 
 function productId(value: string) {
   const normalized = value.trim();
-  if (!UUID_PATTERN.test(normalized)) throw new CartUnavailableError("PRODUCT_UNAVAILABLE");
+  if (!PRODUCT_ID_PATTERN.test(normalized)) throw new CartUnavailableError("PRODUCT_UNAVAILABLE");
   return normalized;
 }
 
