@@ -65,6 +65,7 @@ export class SupabaseCartSession implements CartSession {
 
   async currentUserId() {
     const { data, error } = await this.client.auth.getUser();
+    if (error && !data.user) return null;
     if (error) throw error;
     return data.user?.id ?? null;
   }

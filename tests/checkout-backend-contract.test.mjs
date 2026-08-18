@@ -20,6 +20,7 @@ test("checkout repository uses explicit columns and ownership filters", async ()
 
 test("checkout authenticates and validates identifiers", async () => {
   const service = await read("modules/checkout/application/cart-service.ts");
+  const repository = await read("modules/checkout/infrastructure/supabase-cart-repository.ts");
   const route = await read("app/api/cart/items/route.ts");
   assert.match(service, /CartAuthenticationError/);
   assert.match(service, /currentUserId/);
@@ -27,6 +28,7 @@ test("checkout authenticates and validates identifiers", async () => {
   assert.match(route, /max\(64\)/);
   assert.doesNotMatch(route, /\.uuid\(\)/);
   assert.match(route, /affiliate attribution failed/);
+  assert.match(repository, /error && !data\.user/);
 });
 
 test("adding the same product is idempotent", async () => {
