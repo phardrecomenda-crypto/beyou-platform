@@ -17,11 +17,22 @@ test("official catalog prices and sizes are versioned", async () => {
 });
 
 test("product mutations require active administrators", async () => {
-  const sql = await read("supabase/migrations/20260803174500_products_policy_hardening.sql");
-  assert.match(sql, /SUPER_ADMIN/);
-  assert.match(sql, /ADMIN/);
-  assert.match(sql, /profiles\.status = 'ACTIVE'/);
-  assert.match(sql, /to anon using \(status = 'ACTIVE'\)/);
+  const [authorization, sql] = await Promise.all([
+    read("modules/products/application/authorization.ts"),
+    read("supabase/migrations/20260818123500_products_admin_schema_alignment.sql"),
+  ]);
+  assert.match(authorization, /select\("role"\)\.eq\("id", userData\.user\.id\)/);
+  assert.match(authorization, /data\.role === "admin"/);
+  assert.doesNotMatch(authorization, /status/);
+  assert.match(sql, /p\.role = 'admin'/);
+  assert.match(sql, /products_admin_manage/);
+});
+
+test("product writes keep the production compatibility columns synchronized", async () => {
+  const repository = await read("modules/products/infrastructure/supabase-product-repository.ts");
+  for (const field of ["price", "old_price", "active", "availability", "becoins"]) {
+    assert.match(repository, new RegExp(`\\b${field}\\b`));
+  }
 });
 
 test("product media restricts writes and limits files", async () => {
