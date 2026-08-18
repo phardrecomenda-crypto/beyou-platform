@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "../lib/supabase/server";
-import { createProductService } from "../modules/products/infrastructure/product-factory";\nimport { AuthRecoveryBridge } from "./auth/recovery-bridge";
+import { createProductService } from "../modules/products/infrastructure/product-factory";
+import { AuthRecoveryBridge } from "./auth/recovery-bridge";
 import styles from "./commercial.module.css";
 import audit from "./commercial-audit.module.css";
 
@@ -20,7 +21,8 @@ export default async function CommercialHomePage() {
   const installment = product?.priceCents !== null && product ? money.format(product.priceCents / 300) : null;
 
   return (
-    <main className={`${styles.page} ${audit.scroll}`}>\n      <AuthRecoveryBridge />
+    <main className={`${styles.page} ${audit.scroll}`}>
+      <AuthRecoveryBridge />
       <div className={styles.benefits} aria-label="Benefícios da loja">
         <Link className={audit.benefitLink} href="/loja">Envio para todo o Brasil</Link><Link className={audit.benefitLink} href="/loja">Frete grátis acima de R$ 600</Link><Link className={audit.benefitLink} href="#proposito">Compra segura</Link><Link className={audit.benefitLink} href="/cadastro">Acumule BeCoins</Link>
       </div>
