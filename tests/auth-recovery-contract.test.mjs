@@ -5,11 +5,14 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("recovery links that fall back to the site root reach the password form", async () => {
-  const [bridge, home] = await Promise.all([
+  const [actions, bridge, home] = await Promise.all([
+    read("app/auth/actions.ts"),
     read("app/auth/recovery-bridge.tsx"),
     read("app/page.tsx"),
   ]);
 
+  assert.match(actions, /flowType: "implicit"/);
+  assert.match(actions, /persistSession: false/);
   assert.match(home, /<AuthRecoveryBridge \/>/);
   assert.match(bridge, /query\.get\("code"\)/);
   assert.match(bridge, /\/auth\/callback\?code=/);
