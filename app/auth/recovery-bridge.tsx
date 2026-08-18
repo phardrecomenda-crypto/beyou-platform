@@ -8,6 +8,16 @@ export function AuthRecoveryBridge() {
   const router = useRouter();
 
   useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const recoveryCode = query.get("code");
+
+    if (recoveryCode) {
+      window.location.replace(
+        `/auth/callback?code=${encodeURIComponent(recoveryCode)}&next=%2Fredefinir-senha`,
+      );
+      return;
+    }
+
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     if (fragment.get("type") !== "recovery") return;
 

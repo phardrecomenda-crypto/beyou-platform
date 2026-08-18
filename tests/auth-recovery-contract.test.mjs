@@ -11,6 +11,9 @@ test("recovery links that fall back to the site root reach the password form", a
   ]);
 
   assert.match(home, /<AuthRecoveryBridge \/>/);
+  assert.match(bridge, /query\.get\("code"\)/);
+  assert.match(bridge, /\/auth\/callback\?code=/);
+  assert.match(bridge, /next=%2Fredefinir-senha/);
   assert.match(bridge, /fragment\.get\("type"\) !== "recovery"/);
   assert.match(bridge, /setSession/);
   assert.match(bridge, /window\.history\.replaceState/);
