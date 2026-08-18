@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { createServerSupabaseClient } from "../../lib/supabase/server";
 
@@ -50,7 +51,18 @@ export async function signUpAction(_: AuthState, formData: FormData): Promise<Au
 export async function requestPasswordResetAction(_: AuthState, formData: FormData): Promise<AuthState> {
   const email = z.email().safeParse(value(formData, "email"));
   if (!email.success) return { error: "Informe um e-mail válido." };
-  const supabase = await createServerSupabaseClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      auth: {
+        flowType: "implicit",
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    },
+  );
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const { error } = await supabase.auth.resetPasswordForEmail(email.data, { redirectTo: `${origin}/auth/callback?next=/redefinir-senha` });
   if (error) return { error: "Não foi possível enviar o e-mail agora." };
