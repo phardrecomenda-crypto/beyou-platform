@@ -33,6 +33,7 @@ const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL
 
 export function CartStore({ children, initialCart, products }: Readonly<{ children: ReactNode; initialCart: Cart | null; products: readonly Product[] }>) {
   const [cart, setCart] = useState(initialCart);
+  const [syncedInitialCart, setSyncedInitialCart] = useState(initialCart);
   const [opened, setOpened] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
@@ -40,13 +41,21 @@ export function CartStore({ children, initialCart, products }: Readonly<{ childr
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("cart") === "open") setOpened(true);
-  }, []);
+  // Reset local cart state when the server-provided cart changes, computed
+  // during render (per https://react.dev/learn/you-might-not-need-an-effect)
+  // instead of syncing via a setState-in-effect, which the React Compiler
+  // flags as a cascading-render risk.
+  if (initialCart !== syncedInitialCart) {
+    setSyncedInitialCart(initialCart);
+    setCart(initialCart);
+  }
 
   useEffect(() => {
-    setCart(initialCart);
-  }, [initialCart]);
+    // Reads window.location on mount only; must stay an effect since the URL
+    // is a browser-only API and this keeps SSR/hydration output stable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (new URLSearchParams(window.location.search).get("cart") === "open") setOpened(true);
+  }, []);
 
   useEffect(() => {
     if (!opened) return;
