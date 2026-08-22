@@ -13,18 +13,19 @@ export default async function CheckoutPage() {
   const cartService = createCartService(client);
   const checkoutService = createCheckoutService(client);
 
+  let cart, customer, addresses;
   try {
-    const [cart, customer, addresses] = await Promise.all([
+    [cart, customer, addresses] = await Promise.all([
       cartService.getActive(),
       checkoutService.getCustomer(),
       checkoutService.listAddresses(),
     ]);
-    if (!cart?.items.length) redirect("/loja?cart=open");
-    return <CheckoutForm cart={cart} customer={customer} addresses={addresses} />;
   } catch (error) {
     if (error instanceof CartAuthenticationError || error instanceof CheckoutAuthenticationError) {
       redirect("/login?next=%2Fcheckout");
     }
     throw error;
   }
+  if (!cart?.items.length) redirect("/loja?cart=open");
+  return <CheckoutForm cart={cart} customer={customer} addresses={addresses} />;
 }
