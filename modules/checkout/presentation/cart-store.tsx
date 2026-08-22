@@ -143,4 +143,3 @@ export function OpenCartButton() {
   if (!store) throw new Error("CartStore is required");
   return <button className="header-cart-button" type="button" onClick={store.open}>Carrinho <b>{store.cart?.summary.itemCount ?? 0}</b></button>;
 }
-fix: cart-store completo
