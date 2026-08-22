@@ -131,4 +131,16 @@ export function CartStore({ children, initialCart, products }: Readonly<{ childr
   </CartContext.Provider>;
 }
 
-export function AddToCartButton({
+export function AddToCartButton({ productId, disabled = false, children = "Adicionar ao carrinho" }: Readonly<{ productId: string; disabled?: boolean; children?: ReactNode }>) {
+  const store = useContext(CartContext);
+  if (!store) throw new Error("CartStore is required");
+  const included = store.cart?.items.some((item) => item.productId === productId) ?? false;
+  return <button className="add-cart-button" type="button" disabled={disabled || included || store.busy} onClick={() => store.add(productId)}>{included ? "Já está no carrinho" : children}</button>;
+}
+
+export function OpenCartButton() {
+  const store = useContext(CartContext);
+  if (!store) throw new Error("CartStore is required");
+  return <button className="header-cart-button" type="button" onClick={store.open}>Carrinho <b>{store.cart?.summary.itemCount ?? 0}</b></button>;
+}
+fix: cart-store completo
