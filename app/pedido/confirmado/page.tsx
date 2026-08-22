@@ -8,12 +8,13 @@ import "../../pedidos/orders.css";
 export default async function ConfirmedOrderPage({ searchParams }: Readonly<{searchParams:Promise<{pedido?:string}>}>) {
   const {pedido}=await searchParams;
   if(!pedido) redirect("/pedidos");
+  let order;
   try {
-    const order=await createOrderService(await createServerSupabaseClient()).getMine(pedido);
-    if(!order) notFound();
-    return <OrderDetails order={order} confirmed />;
+    order=await createOrderService(await createServerSupabaseClient()).getMine(pedido);
   } catch(error) {
     if(error instanceof OrderAuthenticationError) redirect(`/login?next=${encodeURIComponent(`/pedido/confirmado?pedido=${pedido}`)}`);
     throw error;
   }
+  if(!order) notFound();
+  return <OrderDetails order={order} confirmed />;
 }
