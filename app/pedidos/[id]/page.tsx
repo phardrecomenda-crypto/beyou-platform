@@ -6,13 +6,14 @@ import { OrderDetails } from "../order-view";
 import "../orders.css";
 
 export default async function OrderPage({ params }: Readonly<{params:Promise<{id:string}>}>) {
+  let order;
   try {
     const {id}=await params;
-    const order=await createOrderService(await createServerSupabaseClient()).getMine(id);
-    if(!order) notFound();
-    return <OrderDetails order={order} />;
+    order=await createOrderService(await createServerSupabaseClient()).getMine(id);
   } catch(error) {
     if(error instanceof OrderAuthenticationError) redirect("/login?next=%2Fpedidos");
     throw error;
   }
+  if(!order) notFound();
+  return <OrderDetails order={order} />;
 }
