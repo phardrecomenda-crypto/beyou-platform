@@ -20,7 +20,7 @@ test("cart attribution is validated on the server and blocks self attribution",a
   assert.doesNotMatch(capture,/security definer/);
 });
 test("paid order locks attribution before the commission engine runs",async()=>{
-  const [migration,webhook]=await Promise.all([read("supabase/migrations/20260813152000_affiliate_direct_attribution_capture.sql"),read("app/api/webhooks/asaas/route.ts")]);
+  const [migration,webhook]=await Promise.all([read("supabase/migrations_archive_unapplied/20260813152000_affiliate_direct_attribution_capture.sql"),read("app/api/webhooks/asaas/route.ts")]);
   assert.match(migration,/after insert on public\.orders/);
   assert.match(migration,/insert into public\.sale_attributions/);
   assert.match(migration,/'DIRECT'/);

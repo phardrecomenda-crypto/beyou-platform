@@ -15,7 +15,7 @@ test("affiliate backend keeps identity and writes on the server",async()=>{
 });
 
 test("commission engine is private, idempotent and distinguishes remarketing",async()=>{
-  const migration=await read("supabase/migrations/20260811152000_affiliate_commission_engine.sql");
+  const migration=await read("supabase/migrations/20260811175403_affiliate_commission_engine.sql");
   assert.match(migration,/ORDER_NOT_COMMISSIONABLE/);
   assert.match(migration,/NO_ATTRIBUTION/);
   assert.match(migration,/REMARKETING_AFFILIATE_15/);
@@ -38,7 +38,7 @@ test("affiliate applications require identity and admin review",async()=>{
   const [service,repository,migration]=await Promise.all([
     read("modules/affiliates/application/affiliate-service.ts"),
     read("modules/affiliates/infrastructure/supabase-affiliate-repository.ts"),
-    read("supabase/migrations/20260811182508_affiliate_application_workflow.sql"),
+    read("supabase/migrations/20260811182557_affiliate_application_workflow.sql"),
   ]);
   assert.match(service,/APPLICATION_EXISTS/);
   assert.match(service,/isAdministrator/);

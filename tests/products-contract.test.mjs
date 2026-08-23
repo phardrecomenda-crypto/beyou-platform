@@ -10,7 +10,7 @@ test("presentation does not query products directly", async () => {
 });
 
 test("official catalog prices and sizes are versioned", async () => {
-  const sql = await read("supabase/migrations/20260803190000_products_audit_catalog.sql");
+  const sql = await read("supabase/migrations_archive_unapplied/20260803190000_products_audit_catalog.sql");
   for (const cents of [21590, 17810, 10790, 40310]) assert.match(sql, new RegExp(`price_cents=${cents}`));
   assert.match(sql, /210 g/);
   assert.doesNotMatch(sql, /300 g/);
@@ -19,7 +19,7 @@ test("official catalog prices and sizes are versioned", async () => {
 test("product mutations require active administrators", async () => {
   const [authorization, sql] = await Promise.all([
     read("modules/products/application/authorization.ts"),
-    read("supabase/migrations/20260818123500_products_admin_schema_alignment.sql"),
+    read("supabase/migrations/20260818124952_products_admin_schema_alignment.sql"),
   ]);
   assert.match(authorization, /select\("role"\)\.eq\("id", userData\.user\.id\)/);
   assert.match(authorization, /data\.role === "admin"/);
@@ -36,7 +36,7 @@ test("product writes keep the production compatibility columns synchronized", as
 });
 
 test("product media restricts writes and limits files", async () => {
-  const sql = await read("supabase/migrations/20260803173000_product_media_storage.sql");
+  const sql = await read("supabase/migrations_archive_unapplied/20260803173000_product_media_storage.sql");
   assert.match(sql, /5242880/);
   assert.match(sql, /image\/webp/);
   assert.match(sql, /Administrators upload product media/);

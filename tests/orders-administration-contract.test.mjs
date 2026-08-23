@@ -4,7 +4,7 @@ import test from "node:test";
 const read=path=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("fulfillment transitions are atomic, ordered and private",async()=>{
-  const migration=await read("supabase/migrations/20260804031000_orders_fulfillment_workflow.sql");
+  const migration=await read("supabase/migrations_archive_unapplied/20260804031000_orders_fulfillment_workflow.sql");
   assert.match(migration,/for update/);
   assert.match(migration,/ORDER_TRANSITION_INVALID/);
   assert.match(migration,/TRACKING_REQUIRED/);

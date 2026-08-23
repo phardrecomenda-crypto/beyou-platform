@@ -15,7 +15,7 @@ test("confirmed payment webhooks create orders",async()=>{
 });
 
 test("order conversion is atomic and idempotent",async()=>{
-  const migration=await read("supabase/migrations/20260804024000_orders_payment_conversion.sql");
+  const migration=await read("supabase/migrations_archive_unapplied/20260804024000_orders_payment_conversion.sql");
   assert.match(migration,/for update/);
   assert.match(migration,/where payment_attempt_id = selected_attempt\.id/);
   assert.match(migration,/when unique_violation/);
