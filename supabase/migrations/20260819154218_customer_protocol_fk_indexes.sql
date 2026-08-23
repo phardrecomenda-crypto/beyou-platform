@@ -1,0 +1,2 @@
+create index customer_cycles_source_assessment_idx on public.customer_cycles(source_assessment_id);
+create index customer_checkins_supersedes_idx on public.customer_checkins(supersedes_checkin_id) where supersedes_checkin_id is not null;
