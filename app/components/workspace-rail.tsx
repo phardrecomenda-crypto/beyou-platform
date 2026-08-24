@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 type Area = "admin" | "customer" | "affiliate";
 type Item = { href: string; label: string; icon: string; exact?: boolean; section?: string };
+type AdminRole = "super_admin" | "admin" | "support" | "finance";
 
 const navigation: Record<Area, Item[]> = {
   admin: [
@@ -46,12 +48,24 @@ function isActive(pathname: string, item: Item) {
   return item.exact ? pathname === path : pathname === path || pathname.startsWith(`${path}/`);
 }
 
-export function WorkspaceRail({ area }: Readonly<{ area: Area }>) {
+const adminAccess: Record<AdminRole, string[]> = {
+  super_admin: navigation.admin.map(item => item.href),
+  admin: navigation.admin.filter(item => item.href !== "/admin/usuarios").map(item => item.href),
+  support: ["/admin", "/admin/pedidos", "/admin/crm", "/admin/suporte"],
+  finance: ["/admin", "/admin/financeiro"],
+};
+
+export function WorkspaceRail({ area, role }: Readonly<{ area: Area; role?: string | null }>) {
   const pathname = usePathname();
-  return <aside className={`workspace-rail workspace-rail-${area}`}>
+  const [open, setOpen] = useState(false);
+  const items = area === "admin" && role && role in adminAccess
+    ? navigation.admin.filter(item => adminAccess[role as AdminRole].includes(item.href))
+    : navigation[area];
+  return <aside className={`workspace-rail workspace-rail-${area} ${open ? "mobile-open" : ""}`}>
     <Link href="/" className="workspace-rail-brand"><span aria-hidden="true">◒</span><b>BeYou</b><small>{area === "admin" ? "Central" : area === "affiliate" ? "Painel do afiliado" : "Nutrition"}</small></Link>
     <nav aria-label={area === "admin" ? "Central administrativa" : area === "affiliate" ? "Portal do afiliado" : "Área do cliente"}>
-      {navigation[area].map(item => <div className="workspace-nav-item" key={item.href}>{item.section&&<small>{item.section}</small>}<Link className={isActive(pathname, item) ? "active" : ""} href={item.href}><i aria-hidden="true">{item.icon}</i><span>{item.label}</span></Link></div>)}
+      {items.map((item, index) => <div className={`workspace-nav-item ${index > 3 ? "mobile-secondary" : ""}`} key={item.href}>{item.section&&<small>{item.section}</small>}<Link onClick={() => setOpen(false)} className={isActive(pathname, item) ? "active" : ""} href={item.href}><i aria-hidden="true">{item.icon}</i><span>{item.label}</span></Link></div>)}
+      <button className="workspace-more" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}><i aria-hidden="true">•••</i><span>{open ? "Fechar" : "Mais"}</span></button>
     </nav>
     <div className="workspace-rail-footer">
       <Link className="workspace-support" href="/suporte"><i>?</i><span>Precisa de ajuda?<b>Suporte</b></span></Link>
