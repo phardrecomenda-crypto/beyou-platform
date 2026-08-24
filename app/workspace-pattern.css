@@ -339,6 +339,7 @@ body:has(.tool-page) { background: var(--byw-canvas); }
 .affiliate-workspace-root > .affiliate-shell { width: calc(100% - 238px) !important; margin-left: 238px !important; }
 .customer-workspace-root > .customer-shell .customer-content { width: calc(100% - 238px) !important; margin-left: 238px !important; }
 .affiliate-workspace-root > .affiliate-app { display: block !important; padding-left: 238px !important; }
+.customer-workspace-root > .assessment-page { width: calc(100% - 238px) !important; margin-left: 238px !important; }
 
 @media (max-width: 900px) {
   .workspace-rail {
@@ -365,4 +366,5 @@ body:has(.tool-page) { background: var(--byw-canvas); }
   .admin-workspace-root > .affiliate-shell,
   .affiliate-workspace-root > .affiliate-shell,
   .customer-workspace-root > .customer-shell .customer-content { width: 100% !important; margin-left: 0 !important; padding-bottom: 72px !important; }
+  .customer-workspace-root > .assessment-page { width: 100% !important; margin-left: 0 !important; padding-bottom: 72px !important; }
 }

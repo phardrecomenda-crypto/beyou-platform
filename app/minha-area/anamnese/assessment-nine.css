@@ -1,0 +1,37 @@
+/* Compact authenticated shell inspired by the Nine product reference. */
+.customer-workspace-root .assessment-page{background:#f6f4fb;color:#2d165f}
+.customer-workspace-root .assessment-page>header{height:72px;position:sticky;top:0;z-index:30;padding:0 clamp(24px,4vw,52px);background:rgba(255,255,255,.97);color:#2d165f;border-bottom:1px solid #e9e3ef;box-shadow:0 8px 26px rgba(45,22,95,.045)}
+.customer-workspace-root .assessment-page>header .assessment-brand{display:none}
+.customer-workspace-root .assessment-page>header>div{width:100%;justify-content:space-between;font-size:13px}
+.customer-workspace-root .assessment-page>header>div span{font-weight:900}
+.customer-workspace-root .assessment-page>header>div b{padding:8px 13px;background:#ceff32;color:#2d165f;font-size:10px}
+.customer-workspace-root .assessment-layout{width:min(100%,1180px);max-width:none;grid-template-columns:250px minmax(0,1fr);gap:18px;margin:0 auto;padding:34px clamp(24px,4vw,52px) 70px}
+.customer-workspace-root .assessment-layout>aside{top:106px;padding:23px;background:#fff;color:#2d165f;border:1px solid #e9e3ef;border-radius:20px;box-shadow:0 14px 40px rgba(45,22,95,.06)}
+.customer-workspace-root .assessment-layout>aside>small{color:#7650d1;font-size:9px}
+.customer-workspace-root .assessment-layout>aside h1{font-size:25px;line-height:1.05;margin:9px 0}
+.customer-workspace-root .assessment-layout>aside>p{color:#766d80;font-size:12px;line-height:1.45}
+.customer-workspace-root .assessment-layout ol{gap:7px;padding:16px 0 3px}
+.customer-workspace-root .assessment-layout li{gap:9px;padding:8px;border-radius:12px;color:#766d80;opacity:1;font-size:11px}
+.customer-workspace-root .assessment-layout li span{width:24px;height:24px;border-color:#ded6e8;font-size:9px}
+.customer-workspace-root .assessment-layout li.current{background:#f0eafb;color:#2d165f}
+.customer-workspace-root .assessment-layout li.current span{background:#ceff32;border-color:#ceff32;color:#2d165f}
+.customer-workspace-root .assessment-layout li.done span{background:#9272e7;border-color:#9272e7;color:#fff}
+.customer-workspace-root .privacy-note{margin-top:14px;padding:13px;background:#f7f4fb;color:#2d165f;border-radius:13px}
+.customer-workspace-root .privacy-note p{color:#766d80;font-size:10px}
+.customer-workspace-root .assessment-form{padding:30px 34px;background:#fff;border-color:#e9e3ef;border-radius:20px;box-shadow:0 14px 40px rgba(45,22,95,.06)}
+.customer-workspace-root .assessment-progress{height:5px;background:#eeeaf2}
+.customer-workspace-root .assessment-progress span{background:#7650d1}
+.customer-workspace-root .assessment-heading{padding:25px 0 18px}
+.customer-workspace-root .assessment-heading small{color:#7650d1;font-size:9px}
+.customer-workspace-root .assessment-heading h2{font-size:30px;margin:7px 0;color:#2d165f}
+.customer-workspace-root .assessment-heading p{font-size:13px;color:#766d80}
+.customer-workspace-root .assessment-fields{gap:15px}
+.customer-workspace-root .assessment-fields label{font-size:11px}
+.customer-workspace-root .assessment-fields input,.customer-workspace-root .assessment-fields select,.customer-workspace-root .assessment-fields textarea{min-height:45px;padding:12px 13px;background:#fbfafc;border-color:#ded7e5;border-radius:12px;font-size:12px}
+.customer-workspace-root .assessment-fields textarea{min-height:94px}
+.customer-workspace-root .assessment-actions{margin-top:24px;padding-top:18px}
+.customer-workspace-root .assessment-actions>a{font-size:11px}
+.customer-workspace-root .assessment-actions button{padding:12px 17px;font-size:11px}
+.customer-workspace-root .assessment-actions button.save-exit{background:#f0ebf6}
+.customer-workspace-root .customer-benefits-shortcut{padding:11px 14px;font-size:10px;box-shadow:0 12px 28px rgba(45,22,95,.13)}
+@media(max-width:900px){.customer-workspace-root .assessment-layout{grid-template-columns:1fr;padding:22px 16px 92px}.customer-workspace-root .assessment-layout>aside{position:static;padding:15px}.customer-workspace-root .assessment-layout>aside h1,.customer-workspace-root .assessment-layout>aside>p,.customer-workspace-root .privacy-note{display:none}.customer-workspace-root .assessment-layout ol{grid-template-columns:repeat(5,1fr);padding:0}.customer-workspace-root .assessment-layout li{justify-content:center;padding:6px}.customer-workspace-root .assessment-layout li b{display:none}.customer-workspace-root .assessment-form{padding:22px 18px}.customer-workspace-root .assessment-page>header{height:64px;padding:0 16px}}
