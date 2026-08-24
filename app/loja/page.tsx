@@ -1,21 +1,24 @@
 import Link from "next/link";
-import Image from "next/image";
 import { createServerSupabaseClient } from "../../lib/supabase/server";
 import { createProductService } from "../../modules/products/infrastructure/product-factory";
 import type { Product } from "../../modules/products/domain/product";
-import { AddToCartButton, OpenCartButton } from "../../modules/checkout/presentation/cart-store";
-const money = new Intl.NumberFormat("pt-BR", { style:"currency", currency:"BRL" });
+import { OpenCartButton } from "../../modules/checkout/presentation/cart-store";
+import { dashboardDestination } from "../../lib/auth/dashboard-destination";
+import { StoreCatalog } from "./store-catalog";
+// StoreCatalog renders the shared AddToCartButton for every filtered product.
 
 export default async function StorePage() {
   const supabase = await createServerSupabaseClient();
+  const{data:{user}}=await supabase.auth.getUser();
+  const{data:viewerProfile}=user?await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle():{data:null};
   let products: readonly Product[]=[];
   let failed=false;
   try { products=await createProductService(supabase).listCatalog(); } catch { failed=true; }
-  return <main className="store-page"><header className="store-header"><Link className="store-brand" href="/"><b>BE</b>YOU <small>Nutrition</small></Link><nav className="store-actions"><OpenCartButton/><Link className="store-account" href="/minha-area">Minha área</Link></nav></header>
+  return <main className="store-page"><header className="store-header"><Link className="store-brand" href="/"><b>BE</b>YOU <small>Nutrition</small></Link><nav className="store-actions"><OpenCartButton/><Link className="store-account" href={user?dashboardDestination(viewerProfile?.role):"/login"}>{user?"Acessar painel":"Entrar"}</Link></nav></header>
     <section className="store-hero"><p>CIÊNCIA, TECNOLOGIA E CUIDADO</p><h1>Produtos para sua melhor versão.</h1><span>Uma rotina completa pensada para acompanhar você todos os dias.</span></section>
-    <section className="catalog" aria-labelledby="catalog-title"><div className="catalog-title"><div><small>LOJA BEYOU</small><h2 id="catalog-title">Nossa seleção</h2></div><span>{products.length} {products.length === 1 ? "produto" : "produtos"}</span></div>
+    <section className="catalog" aria-labelledby="catalog-title"><div className="catalog-title"><div><small>LOJA BEYOU</small><h2 id="catalog-title">Nossa seleção</h2></div></div>
       {failed && <p className="catalog-message" role="alert">Não foi possível carregar os produtos agora.</p>}
       {!failed && products.length === 0 && <p className="catalog-message">Novidades chegando em breve.</p>}
-      <div className="catalog-grid">{products.map((product) => <article className="catalog-card" key={product.id}><Link className="catalog-card-link" href={`/loja/${product.slug}`} aria-label={`Ver ${product.name}`}><div className="catalog-pack"><Image src={product.imageUrl??"https://beyou-teste-nine.vercel.app/beyou-box-hero.webp"} alt={product.name} width={992} height={794} sizes="(max-width: 700px) 88vw, 40vw" /></div>{product.featured && <small className="featured-badge">DESTAQUE</small>}<h3>{product.name}</h3><p>{product.shortDescription}</p><strong>{product.priceCents===null?"Em breve":money.format(product.priceCents/100)}</strong></Link><div className="catalog-card-actions"><Link href={`/loja/${product.slug}`}>Ver detalhes</Link><AddToCartButton productId={product.id} disabled={product.stockQuantity < 1 || product.priceCents === null}>+ Carrinho</AddToCartButton></div></article>)}</div>
+      {!failed&&products.length>0&&<StoreCatalog products={products}/>} 
     </section></main>;
 }

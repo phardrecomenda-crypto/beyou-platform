@@ -1,5 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  SUPABASE_PUBLIC_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+} from "./public-config";
 
 const PUBLIC_PATHS = ["/login", "/cadastro", "/recuperar-senha", "/redefinir-senha", "/auth", "/loja"];
 const PUBLIC_EXACT_PATHS = new Set(["/api/webhooks/asaas"]);
@@ -8,8 +12,8 @@ const API_PATH_PREFIX = "/api/";
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    SUPABASE_PUBLIC_URL,
+    SUPABASE_PUBLISHABLE_KEY,
     {
       cookies: {
         getAll: () => request.cookies.getAll(),

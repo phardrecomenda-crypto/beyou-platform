@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { createServerSupabaseClient } from "../../lib/supabase/server";
+import { dashboardDestination, safeInternalDestination } from "../../lib/auth/dashboard-destination";
 
 export type AuthState = { error?: string; success?: string };
 
@@ -24,7 +25,11 @@ export async function loginAction(_: AuthState, formData: FormData): Promise<Aut
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { error: "E-mail ou senha incorretos." };
-  redirect("/minha-area");
+  const requested=safeInternalDestination(value(formData,"next"));
+  if(requested)redirect(requested);
+  const{data:{user}}=await supabase.auth.getUser();
+  const{data:profile}=user?await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle():{data:null};
+  redirect(dashboardDestination(profile?.role));
 }
 
 export async function signUpAction(_: AuthState, formData: FormData): Promise<AuthState> {

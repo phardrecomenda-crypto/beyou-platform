@@ -1,23 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "./brand-system.css";
+import "./public-pages.css";
+import "./internal-unified.css";
+import "./workspace-pattern.css";
 
 export const metadata: Metadata = {
-  title: "BEYOU | Seja você na sua melhor versão",
+  title: "BeYou — Seja você. Na sua melhor versão.",
   description: "Ciência, tecnologia, acompanhamento e comunidade em uma única plataforma de saúde e bem-estar.",
-  other: {
-    "codex-preview": "development",
-  },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -31,9 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
       </body>
     </html>

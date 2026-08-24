@@ -64,7 +64,7 @@ Executado em checkout limpo do repositório oficial:
 
 ## Frete abaixo da meta
 
-Quando o subtotal é inferior a R$ 600,00, `shipping_cents` e `total_cents` permanecem pendentes. A integração com uma transportadora não será simulada: será implementada no pacote de integração com credenciais e contrato aprovados.
+Quando o subtotal é inferior a R$ 600,00, o checkout aplica frete fixo de R$ 9,90 (`shipping_cents = 990`). A partir de R$ 600,00, o frete é grátis. O total é sempre calculado antes do envio ao provedor de pagamento.
 
 ## Próxima etapa
 

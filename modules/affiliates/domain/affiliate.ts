@@ -56,6 +56,17 @@ export type AffiliateDashboard = Readonly<{
   releasedAmount: number;
   paidAmount: number;
   recentCommissions: readonly AffiliateCommission[];
+  network: readonly AffiliateNetworkMember[];
+}>;
+
+export type AffiliateNetworkMember = Readonly<{
+  id: string;
+  userId: string;
+  name: string;
+  parentUserId: string | null;
+  level: "n1" | "n2" | "n3";
+  relationshipType: AffiliateFocus;
+  joinedAt: string;
 }>;
 
 export type CommissionProcessingResult = Readonly<{

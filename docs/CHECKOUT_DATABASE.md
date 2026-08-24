@@ -33,7 +33,7 @@ Regras:
 - cartão entre R$ 500,00 e R$ 999,99: máximo de 6 parcelas;
 - cartão a partir de R$ 1.000,00: máximo de 10 parcelas;
 - frete grátis a partir de R$ 600,00;
-- frete abaixo da meta permanece pendente até a cotação;
+- frete abaixo da meta é fixo em R$ 9,90 e, a partir de R$ 600,00, é grátis;
 - assinaturas permanecem fora desta fase.
 
 ## Segurança
@@ -62,6 +62,6 @@ Carrinho real de teste com subtotal de R$ 619,00:
 - `supabase/migrations/20260803163453_checkout_addresses_and_drafts.sql`
 - `supabase/tests/checkout_addresses_and_drafts.sql`
 
-## Próxima etapa
+## Estado atual
 
-Implementar Application e Infrastructure do checkout: validação Zod, repositórios, server actions e cotação de frete; depois concluir a interface.
+Application, Infrastructure, validação Zod, repositórios, server actions, frete fixo e interface estão implementados e conectados ao fluxo de pagamento e pedidos.

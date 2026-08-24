@@ -1,0 +1,368 @@
+/*
+ * BEYOU Workspace Pattern
+ * One visual and interaction language for customer, affiliate and operations.
+ * Inspired by the Nine reference: lilac navigation, pale canvas, white working
+ * surfaces, deep-purple actions and lime focus states.
+ */
+:root {
+  --byw-sidebar: #8d73e6;
+  --byw-sidebar-deep: #7655d5;
+  --byw-ink: #2d165f;
+  --byw-ink-2: #4a3370;
+  --byw-lime: #ceff32;
+  --byw-canvas: #f5f3fb;
+  --byw-surface: #ffffff;
+  --byw-soft: #f9f7fc;
+  --byw-line: #e9e3ef;
+  --byw-muted: #766d80;
+  --byw-danger: #b53c61;
+  --byw-radius: 20px;
+  --byw-shadow: 0 14px 40px rgba(45, 22, 95, .075);
+}
+
+body:has(.customer-shell),
+body:has(.affiliate-shell),
+body:has(.tool-page) { background: var(--byw-canvas); }
+
+.customer-shell,
+.affiliate-shell,
+.tool-page {
+  background: var(--byw-canvas) !important;
+  background-image: none !important;
+  color: var(--byw-ink) !important;
+}
+
+/* Shared navigation rail */
+.customer-sidebar,
+.affiliate-sidebar,
+.tool-header {
+  background: linear-gradient(180deg, var(--byw-sidebar) 0%, var(--byw-sidebar-deep) 100%) !important;
+  background-image: radial-gradient(ellipse at -30% 112%, transparent 42%, rgba(255,255,255,.11) 42.5% 54%, transparent 54.5%), linear-gradient(180deg, var(--byw-sidebar), var(--byw-sidebar-deep)) !important;
+  color: #fff !important;
+}
+
+.customer-brand,
+.affiliate-side-brand,
+.affiliate-brand,
+.tool-brand {
+  color: #fff !important;
+  font-size: 25px !important;
+  font-weight: 950 !important;
+  letter-spacing: -.07em !important;
+}
+
+.customer-brand b,
+.affiliate-side-brand b,
+.affiliate-brand b,
+.tool-brand b { color: var(--byw-lime) !important; }
+
+.customer-sidebar nav a,
+.affiliate-sidebar nav a,
+.tool-nav a {
+  min-height: 44px !important;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: transparent !important;
+  color: rgba(255,255,255,.88) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+}
+
+.customer-sidebar nav a:hover,
+.affiliate-sidebar nav a:hover,
+.tool-nav a:hover { background: rgba(255,255,255,.12) !important; color: #fff !important; }
+
+.customer-sidebar nav a.active,
+.affiliate-sidebar nav a.active,
+.tool-nav a.active {
+  background: var(--byw-lime) !important;
+  color: var(--byw-ink) !important;
+  box-shadow: 0 10px 25px rgba(37, 21, 73, .12) !important;
+}
+
+/* White top bars, as in the reference product */
+.customer-content > header,
+.affiliate-topbar {
+  min-height: 72px !important;
+  background: rgba(255,255,255,.96) !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--byw-line) !important;
+  box-shadow: 0 8px 26px rgba(45,22,95,.045) !important;
+  backdrop-filter: blur(14px);
+}
+
+.customer-profile b,
+.customer-profile small,
+.affiliate-topbar,
+.affiliate-topbar a { color: var(--byw-ink) !important; }
+
+.customer-profile > span,
+.avatar {
+  background: var(--byw-ink) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+}
+
+/* Consistent working canvas */
+.customer-dashboard,
+.affiliate-content,
+.affiliate-shell.dashboard,
+.affiliate-shell.admin-affiliates,
+.tool-main {
+  width: min(100%, 1320px) !important;
+  margin-inline: auto !important;
+  padding: 34px clamp(24px, 4vw, 54px) 64px !important;
+}
+
+.customer-welcome,
+.dashboard-title,
+.tool-title { margin: 0 0 26px !important; }
+
+.customer-welcome small,
+.dashboard-title small,
+.tool-title small {
+  color: #7650d1 !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: .14em !important;
+}
+
+.customer-welcome h1,
+.dashboard-title h1,
+.tool-title h1 {
+  max-width: 900px !important;
+  margin: 8px 0 7px !important;
+  color: var(--byw-ink) !important;
+  font-size: clamp(32px, 4vw, 46px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.055em !important;
+}
+
+.customer-welcome p,
+.dashboard-title p,
+.tool-title p { max-width: 760px; margin: 0 !important; color: var(--byw-muted) !important; }
+
+/* Surfaces */
+.customer-card,
+.affiliate-card,
+.affiliate-metrics article,
+.tool-card,
+.application-list > .empty,
+.products-panel,
+.journey-card {
+  background: var(--byw-surface) !important;
+  border: 1px solid var(--byw-line) !important;
+  border-radius: var(--byw-radius) !important;
+  box-shadow: var(--byw-shadow) !important;
+}
+
+.customer-card,
+.affiliate-card,
+.tool-card { padding: clamp(20px, 2.4vw, 28px) !important; }
+
+.customer-stage {
+  background: linear-gradient(125deg, var(--byw-sidebar) 0%, #7a51e7 100%) !important;
+  border-radius: var(--byw-radius) !important;
+  box-shadow: var(--byw-shadow) !important;
+}
+
+.customer-stage a,
+.affiliate-topbar a,
+.tool-primary {
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+}
+
+.customer-stage a { background: var(--byw-lime) !important; color: var(--byw-ink) !important; }
+
+.affiliate-metrics strong,
+.tool-stat { color: var(--byw-ink) !important; }
+
+/* Forms and actions */
+.affiliate-card input,
+.affiliate-card textarea,
+.affiliate-card select,
+.tool-page input,
+.tool-page textarea,
+.tool-page select {
+  min-height: 46px !important;
+  border: 1px solid #ded6e6 !important;
+  border-radius: 12px !important;
+  background: var(--byw-soft) !important;
+}
+
+.affiliate-card input:focus,
+.affiliate-card textarea:focus,
+.affiliate-card select:focus,
+.tool-page input:focus,
+.tool-page textarea:focus,
+.tool-page select:focus {
+  border-color: var(--byw-sidebar) !important;
+  box-shadow: 0 0 0 3px rgba(141,115,230,.14) !important;
+}
+
+.affiliate-card button,
+.application-list button,
+.tool-page button,
+.tool-primary,
+.affiliate-card form button {
+  min-height: 46px !important;
+  border-radius: 999px !important;
+  background: var(--byw-ink) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.affiliate-card button:hover,
+.application-list button:hover,
+.tool-page button:hover,
+.tool-primary:hover { background: var(--byw-ink-2) !important; transform: translateY(-1px) !important; }
+
+.affiliate-card button.secondary,
+.application-list button.secondary,
+.tool-secondary { background: #f0ebf7 !important; color: var(--byw-ink) !important; }
+
+.tool-row,
+.finance-row,
+.latest-order {
+  border: 1px solid var(--byw-line) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+
+.tool-pill,
+.order-state { background: #eee9fb !important; color: #6747ad !important; }
+.tool-pill.good,
+.order-state.paid,
+.order-state.delivered { background: #efffc0 !important; color: #4a5d10 !important; }
+.tool-pill.alert { background: #ffe9ef !important; color: var(--byw-danger) !important; }
+
+.customer-boundary,
+.affiliate-rule { background: #efeafb !important; border-color: #ded3f2 !important; color: var(--byw-ink) !important; }
+
+@media (min-width: 901px) {
+  .tool-page { padding-left: 238px !important; }
+  .tool-header { width: 238px !important; padding: 28px 18px 20px !important; }
+  .tool-title::before { display: none !important; }
+}
+
+@media (max-width: 900px) {
+  .tool-header {
+    background: rgba(255,255,255,.97) !important;
+    background-image: none !important;
+    border-top: 1px solid var(--byw-line) !important;
+    box-shadow: 0 -8px 28px rgba(45,22,95,.08) !important;
+  }
+  .tool-nav a { color: var(--byw-muted) !important; }
+  .tool-nav a.active { color: var(--byw-ink) !important; }
+}
+
+@media (max-width: 760px) {
+  .customer-dashboard,
+  .affiliate-content,
+  .affiliate-shell.dashboard,
+  .affiliate-shell.admin-affiliates,
+  .tool-main { padding: 24px 16px 92px !important; }
+  .customer-card,
+  .affiliate-card,
+  .tool-card { border-radius: 17px !important; }
+  .customer-welcome h1,
+  .dashboard-title h1,
+  .tool-title h1 { font-size: clamp(30px, 10vw, 40px) !important; }
+  .affiliate-metrics { grid-template-columns: 1fr 1fr !important; }
+}
+
+@media (max-width: 430px) {
+  .affiliate-metrics { grid-template-columns: 1fr !important; }
+}
+
+/* One persistent information architecture per authenticated role */
+.role-workspace { min-height: 100vh; background: var(--byw-canvas); }
+.workspace-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 80;
+  width: 238px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px 18px;
+  background-image: radial-gradient(ellipse at -30% 112%, transparent 42%, rgba(255,255,255,.11) 42.5% 54%, transparent 54.5%), linear-gradient(180deg, var(--byw-sidebar), var(--byw-sidebar-deep));
+  color: #fff;
+  box-shadow: 10px 0 34px rgba(45,22,95,.08);
+}
+.workspace-rail-brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  width: max-content;
+  margin: 0 12px 28px;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 950;
+  line-height: .9;
+  letter-spacing: -.07em;
+  text-decoration: none;
+}
+.workspace-rail-brand b { color: var(--byw-lime); }
+.workspace-rail-brand small { grid-column: 1 / -1; margin-top: 7px; color: rgba(255,255,255,.78); font-size: 7px; letter-spacing: .24em; text-transform: uppercase; }
+.workspace-rail nav { display: grid; gap: 4px; overflow: auto; scrollbar-width: none; }
+.workspace-rail nav a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 13px;
+  border-radius: 13px;
+  color: rgba(255,255,255,.87);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.workspace-rail nav a i { width: 20px; color: inherit; font-size: 15px; font-style: normal; text-align: center; }
+.workspace-rail nav a:hover { background: rgba(255,255,255,.12); color: #fff; }
+.workspace-rail nav a.active { background: var(--byw-lime); color: var(--byw-ink); box-shadow: 0 10px 24px rgba(37,21,73,.12); }
+.workspace-rail-footer { display: grid; gap: 6px; margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.18); }
+.workspace-rail-footer a { padding: 6px 9px; color: rgba(255,255,255,.82); font-size: 10px; font-weight: 800; text-decoration: none; }
+.workspace-rail-footer a:hover { color: var(--byw-lime); }
+
+/* Page-local menus are retired; the role rail is the source of truth. */
+.admin-workspace-root > .tool-page > .tool-header,
+.admin-workspace-root > .affiliate-shell > .affiliate-header,
+.customer-workspace-root > .tool-page > .tool-header,
+.customer-workspace-root > .customer-shell .customer-sidebar,
+.affiliate-workspace-root > .affiliate-app .affiliate-sidebar,
+.affiliate-workspace-root > .affiliate-shell > .affiliate-header { display: none !important; }
+
+.admin-workspace-root > .tool-page,
+.customer-workspace-root > .tool-page { padding-left: 238px !important; }
+.admin-workspace-root > .affiliate-shell,
+.affiliate-workspace-root > .affiliate-shell { width: calc(100% - 238px) !important; margin-left: 238px !important; }
+.customer-workspace-root > .customer-shell .customer-content { width: calc(100% - 238px) !important; margin-left: 238px !important; }
+.affiliate-workspace-root > .affiliate-app { display: block !important; padding-left: 238px !important; }
+
+@media (max-width: 900px) {
+  .workspace-rail {
+    inset: auto 0 0;
+    width: 100%;
+    height: 72px;
+    display: block;
+    padding: 7px 9px;
+    background: rgba(255,255,255,.98);
+    color: var(--byw-muted);
+    border-top: 1px solid var(--byw-line);
+    box-shadow: 0 -8px 28px rgba(45,22,95,.08);
+  }
+  .workspace-rail-brand,
+  .workspace-rail-footer { display: none; }
+  .workspace-rail nav { display: flex; gap: 3px; overflow-x: auto; }
+  .workspace-rail nav a { min-width: 74px; min-height: 57px; display: grid; place-items: center; gap: 1px; padding: 5px 8px; color: var(--byw-muted); font-size: 8px; text-align: center; }
+  .workspace-rail nav a i { width: auto; font-size: 16px; }
+  .workspace-rail nav a:hover { background: var(--byw-soft); color: var(--byw-ink); }
+  .workspace-rail nav a.active { background: var(--byw-lime); color: var(--byw-ink); }
+  .admin-workspace-root > .tool-page,
+  .customer-workspace-root > .tool-page,
+  .affiliate-workspace-root > .affiliate-app { padding-left: 0 !important; padding-bottom: 72px !important; }
+  .admin-workspace-root > .affiliate-shell,
+  .affiliate-workspace-root > .affiliate-shell,
+  .customer-workspace-root > .customer-shell .customer-content { width: 100% !important; margin-left: 0 !important; padding-bottom: 72px !important; }
+}

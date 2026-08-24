@@ -24,6 +24,7 @@ test("repository uses explicit columns and ownership filters", async () => {
   assert.doesNotMatch(repository, /select\(["'`]\*["'`]\)/);
   assert.match(repository, /\.eq\("user_id", userId\)/);
   assert.match(repository, /customer_addresses/);
+  assert.match(repository, /user_id:\s*userId/);
   assert.match(repository, /checkout_drafts/);
 });
 

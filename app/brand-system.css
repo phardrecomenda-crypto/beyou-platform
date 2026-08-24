@@ -1,0 +1,10 @@
+:root{--beyou-violet:#908ee9;--beyou-purple:#28104f;--beyou-lime:#cfff3d;--beyou-cream:#fbfaf4;--beyou-ink:#28104f;--beyou-line:#e6e1ed;--beyou-heading:var(--font-geist-sans),Arial,sans-serif}
+.beyou-official-logo{display:inline-grid!important;grid-template-columns:auto auto;grid-template-rows:auto auto;align-items:center;width:max-content;color:var(--beyou-purple);text-decoration:none;line-height:.8!important;letter-spacing:-.055em!important}
+.beyou-official-logo svg{grid-row:1/3;width:31px;height:25px;margin-right:5px;fill:var(--beyou-lime)}
+.beyou-official-logo>span{font-family:var(--beyou-heading);font-size:29px;font-weight:800}
+.beyou-official-logo>small{margin:6px 0 0!important;color:inherit!important;font:700 7px/1 var(--font-geist-sans),Arial,sans-serif!important;letter-spacing:.22em!important;text-transform:uppercase}
+.beyou-official-logo.light{color:#fff}.beyou-official-logo.dark{color:var(--beyou-purple)}
+.beyou-branded-home header,.beyou-branded-store>header{background-color:var(--beyou-violet)!important;background-image:radial-gradient(ellipse at 95% -70%,transparent 52%,rgba(255,255,255,.09) 53%,rgba(255,255,255,.09) 65%,transparent 66%)!important}
+.beyou-branded-home h1,.beyou-branded-home h2,.beyou-branded-store h1,.beyou-branded-store h2,.affiliate-shell h1,.affiliate-shell h2,.tool-title h1{font-family:var(--beyou-heading);font-weight:900;letter-spacing:-.055em!important}
+.beyou-branded-home footer{background-color:var(--beyou-violet)!important;background-image:radial-gradient(ellipse at 0 150%,transparent 48%,rgba(255,255,255,.08) 49%,rgba(255,255,255,.08) 62%,transparent 63%)}
+@media(max-width:600px){.beyou-official-logo svg{width:27px}.beyou-official-logo>span{font-size:25px}}

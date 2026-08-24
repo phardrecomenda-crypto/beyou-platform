@@ -86,7 +86,7 @@ export class SupabaseCheckoutRepository implements CheckoutRepository {
       if (unsetError) throw unsetError;
     }
     const { data, error } = await this.client.from("customer_addresses").insert({
-      label: input.label, postal_code: input.postalCode, street: input.street,
+      user_id: userId, label: input.label, postal_code: input.postalCode, street: input.street,
       address_number: input.number, complement: input.complement ?? null, province: input.neighborhood,
       city: input.city, state: input.state, is_default: input.isDefault ?? false,
     }).select(addressFields).single();

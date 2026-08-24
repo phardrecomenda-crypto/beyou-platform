@@ -1,6 +1,7 @@
 import "./store.css";
 import "./product-highlights.css";
 import "./cart.css";
+import "./store-functional.css";
 import { createServerSupabaseClient } from "../../lib/supabase/server";
 import { createProductService } from "../../modules/products/infrastructure/product-factory";
 import { createCartService } from "../../modules/checkout/infrastructure/cart-factory";

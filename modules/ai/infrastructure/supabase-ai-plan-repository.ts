@@ -1,0 +1,3 @@
+import"server-only";import type{SupabaseClient}from"@supabase/supabase-js";
+export type AiPlan={id:string;generationVersion:number;status:string;result:Record<string,unknown>|null;requestedAt:string;publishedAt:string|null};
+export class SupabaseAiPlanRepository{constructor(private client:SupabaseClient){}async load():Promise<AiPlan|null>{const{data,error}=await this.client.rpc("get_my_ai_plan");if(error)throw error;const row=data?.[0];return row?{id:row.id,generationVersion:row.generation_version,status:row.status,result:row.result,requestedAt:row.requested_at,publishedAt:row.published_at}:null}async request(){const{error}=await this.client.rpc("request_my_ai_plan");if(error)throw error}}

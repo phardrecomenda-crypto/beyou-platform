@@ -1,0 +1,2 @@
+"use server";import{revalidatePath}from"next/cache";import{redirect}from"next/navigation";import{createServerSupabaseClient}from"../../../lib/supabase/server";import{SupabaseAiPlanRepository}from"../../../modules/ai/infrastructure/supabase-ai-plan-repository";
+export async function requestAiPlanAction(){try{await new SupabaseAiPlanRepository(await createServerSupabaseClient()).request()}catch{redirect("/minha-area/plano?erro=requisitos")}revalidatePath("/minha-area/plano");redirect("/minha-area/plano?solicitado=1")}

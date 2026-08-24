@@ -8,6 +8,7 @@ type LinkRow={id:string;code:string;destination_path:string;campaign:string|null
 type CommissionRow={id:string;order_id:string|null;commission_type:string;percentage:number|string|null;base_amount:number|string;amount:number|string;status:AffiliateCommission["status"];created_at:string};
 type EngineRow={status:"PROCESSED"|"NO_ATTRIBUTION";affiliate_entries?:number;company_entries?:number;attribution_type?:"DIRECT"|"REMARKETING";base_amount?:number|string};
 type ApplicationRow={id:string;user_id:string;status:AffiliateApplication["status"];notes:string|null;review_notes:string|null;reviewed_at:string|null;created_at:string};
+type NetworkRow={id:string;member_user_id:string;parent_user_id:string|null;level:"n1"|"n2"|"n3";relationship_type:AffiliateProfile["focus"];joined_at:string};
 
 const mapProfile=(row:ProfileRow):AffiliateProfile=>({userId:row.user_id,affiliateCode:row.affiliate_code,focus:row.focus,active:row.active});
 const mapLink=(row:LinkRow):AffiliateLink=>({id:row.id,code:row.code,destinationPath:row.destination_path,campaign:row.campaign,active:row.active,createdAt:row.created_at});
@@ -43,12 +44,15 @@ export class SupabaseAffiliateRepository implements AffiliateRepository {
   async loadDashboard(userId:string,profile:AffiliateProfile){
     const [linksResult,networkResult,commissions]=await Promise.all([
       this.readClient.from("affiliate_links").select("id",{count:"exact",head:true}).eq("affiliate_user_id",userId).eq("active",true),
-      this.readClient.from("affiliate_network").select("id",{count:"exact",head:true}).eq("owner_user_id",userId).eq("active",true),
+      this.adminClient.from("affiliate_network").select("id, member_user_id, parent_user_id, level, relationship_type, joined_at").eq("owner_user_id",userId).eq("active",true).order("level").order("joined_at",{ascending:false}),
       this.listCommissions(userId),
     ]);
     if(linksResult.error) throw linksResult.error;if(networkResult.error) throw networkResult.error;
+    const rows=(networkResult.data??[]) as NetworkRow[],names=new Map<string,string>();
+    if(rows.length){const{data,error}=await this.adminClient.from("profiles").select("id, full_name").in("id",rows.map(x=>x.member_user_id));if(error)throw error;for(const item of data??[])names.set(item.id,item.full_name??"Afiliado BEYOU");}
+    const network=rows.map(item=>({id:item.id,userId:item.member_user_id,name:names.get(item.member_user_id)??"Afiliado BEYOU",parentUserId:item.parent_user_id,level:item.level,relationshipType:item.relationship_type,joinedAt:item.joined_at}));
     const sum=(statuses:readonly string[])=>commissions.filter(item=>statuses.includes(item.status)).reduce((total,item)=>total+item.amount,0);
-    return {profile,activeLinks:linksResult.count??0,networkMembers:networkResult.count??0,pendingAmount:sum(["calculated","pending"]),releasedAmount:sum(["released"]),paidAmount:sum(["paid"]),recentCommissions:commissions.slice(0,20)};
+    return {profile,activeLinks:linksResult.count??0,networkMembers:network.length,pendingAmount:sum(["calculated","pending"]),releasedAmount:sum(["released"]),paidAmount:sum(["paid"]),recentCommissions:commissions.slice(0,20),network};
   }
 
   async findApplication(userId:string){
