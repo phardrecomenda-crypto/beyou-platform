@@ -8,6 +8,7 @@ import "./system-shell-v3.css";
 import "./system-refinement-v4.css";
 import "./transactional-refinement-v5.css";
 import "./navigation-repair-v6.css";
+import "./reference-visual-v7.css";
 
 export const metadata: Metadata = {
   title: "BeYou — Seja você. Na sua melhor versão.",
